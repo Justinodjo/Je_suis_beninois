@@ -89,42 +89,6 @@ class UserController extends Controller
         return response()->json(['message' => 'Utilisateur supprimé']);
     }
 
-    /**
-     * ✅ Login corrigé
-     */
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required|string',
-        ]);
-
-        $user = User::where('email', $credentials['email'])->first();
-
-        // ✅ CORRECTION : Hash::check() au lieu de \Hash::check()
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['message' => 'Identifiants invalides'], 401);
-        }
-
-        // ✅ Vérifier que le compte est actif
-        if ($user->statut !== 'actif') {
-            return response()->json(['message' => 'Compte désactivé ou banni'], 403);
-        }
-
-        // Mettre à jour la dernière connexion
-        $user->update(['date_derniere_connexion' => now()]);
-
-        // Révoquer les anciens tokens (optionnel)
-        $user->tokens()->delete();
-
-        $token = $user->createToken('api-token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user'  => $user->only(['id', 'name', 'email', 'role', 'avatar', 'statut']),
-        ]);
-    }
-
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

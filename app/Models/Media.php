@@ -41,18 +41,23 @@ class Media extends Model
      * ✅ CORRECTION : La migration stocke l'URL directe (pas un path Storage)
      * Retourner l'URL telle quelle si elle commence par http, sinon via Storage
      */
-    public function getUrlAttribute($value)
+     /**
+     * ✅ Toujours retourner une URL absolue
+     */
+    public function getUrlAttribute($value): ?string
     {
-        if (!$value) return null;
-        if (str_starts_with($value, 'http')) return $value;
-        return Storage::disk('public')->url($value);
+        if (!$value && $this->chemin) {
+            return Storage::url($this->chemin);
+        }
+        return $value;
     }
 
-    public function getThumbnailUrlAttribute()
+    public function getUrlThumbnailAttribute($value): ?string
     {
-        if (!$this->url_thumbnail) return null;
-        if (str_starts_with($this->url_thumbnail, 'http')) return $this->url_thumbnail;
-        return Storage::disk('public')->url($this->url_thumbnail);
+        if (!$value && $this->type === 'image' && $this->chemin) {
+            return Storage::url($this->chemin);
+        }
+        return $value;
     }
 
     /**

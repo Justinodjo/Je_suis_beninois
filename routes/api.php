@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\TagController;
@@ -9,7 +10,7 @@ use App\Http\Controllers\Api\MediaController;
 
 Route::prefix('v1')->group(function () {
     // 🔹 Routes publiques
-    Route::post('/login', [UserController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [UserController::class, 'store']);
 
     // Articles publics
@@ -30,7 +31,7 @@ Route::prefix('v1')->group(function () {
 
     // 🔹 Routes protégées par Sanctum
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/logout', [UserController::class, 'logout']);
+        Route::post('/logout', [AuthController::class, 'logout']);
 
         Route::apiResource('users', UserController::class)->except(['store']);
         Route::post('articles', [ArticleController::class, 'store']);
@@ -45,6 +46,7 @@ Route::prefix('v1')->group(function () {
         Route::post('media', [MediaController::class, 'store']);
         Route::put('media/{media}', [MediaController::class, 'update']);
         Route::delete('media/{media}', [MediaController::class, 'destroy']);
+        
     });
 });
 

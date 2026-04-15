@@ -33,7 +33,8 @@ class ApiService {
     getHeaders(isFormData = false) {
         const headers = {
             'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': window.Laravel.csrfToken 
         };
         
         const token = this.getToken();

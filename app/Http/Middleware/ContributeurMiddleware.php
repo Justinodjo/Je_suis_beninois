@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddleware
+class ContributeurMiddleware
 {
     /**
      * Handle an incoming request.
@@ -15,14 +15,8 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // ✅ Vérifier d'abord si l'utilisateur est connecté
-        if (!auth()->check()) {
-            return redirect()->route('login');
-        }
-
-        // ✅ Ensuite vérifier le rôle
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Accès réservé aux administrateurs');
+        if (!auth()->check() || auth()->user()->role !== 'contributeur') {
+            abort(403);
         }
         return $next($request);
     }

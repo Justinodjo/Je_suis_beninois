@@ -219,13 +219,38 @@
 .footer-social:nth-child(4):hover { 
     background: linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); 
 }
+.toast {
+    min-width: 260px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    animation: slideIn .3s ease, fadeOut .4s ease 3.6s forwards;
+}
+.main-nav a.active .nav-icon{
+    color: var(--vert);
+}
+.toast-success { background: #2E7D32; }
+.toast-error   { background: #C62828; }
+.toast-info    { background: #1565C0; }
 
+@keyframes slideIn {
+    from { opacity:0; transform:translateX(30px); }
+    to   { opacity:1; transform:translateX(0); }
+}
+
+@keyframes fadeOut {
+    to { opacity:0; transform:translateX(30px); }
+}
     </style>
 
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
     @stack('styles')
 </head>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <body>
 
 <!-- Pattern décoratif top -->
@@ -246,12 +271,23 @@
 
 
             <nav class="main-nav">
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Actualités</a>
-                <a href="{{ route('culture.index') }}" class="{{ request()->routeIs('culture.*') ? 'active' : '' }}">Culture</a>
-                <a href="{{ route('culture.index') }}?type=patrimoine" class="{{ request()->routeIs('culture.patrimoine') ? 'active' : '' }}">Histoire</a>
-                <a href="#galerie">Galerie</a>
-                <a href="{{ route('interviews.index') }}" class="{{ request()->routeIs('interviews.*') ? 'active' : '' }}">Interviews</a>
-                <a href="#contact">Contact</a>
+            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">
+        <i class="fa-solid fa-house"></i> Accueil
+    </a>
+    <a href="{{ route('actualites') }}" class="{{ request()->routeIs('actualites') ? 'active' : '' }}">
+        <i class="fa-solid fa-newspaper"></i> Actualités
+    </a>
+                <a href="{{ route('culture.index') }}" class="{{ request()->routeIs('culture.*') ? 'active' : '' }}"><i class="fa-solid fa-landmark nav-icon"></i>Culture</a>
+                <a href="{{ route('culture.index') }}?type=patrimoine" class="{{ request()->routeIs('culture.patrimoine') ? 'active' : '' }}"> <i class="fa-solid fa-scroll nav-icon"></i>Histoire</a>
+                <a href="{{ route('tourisme.index') }}" class="{{ request()->routeIs('tourisme.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-plane-departure"></i> Tourisme
+                </a>
+                <a href="{{ route('ecommerce.index') }}" class="{{ request()->routeIs('ecommerce.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-cart-shopping"></i> E-commerce
+                </a>
+                <a href="{{ route('interviews.index') }}" class="{{ request()->routeIs('interviews.*') ? 'active' : '' }}"><i class="fa-solid fa-microphone nav-icon"></i>
+Interviews</a>
+                <a href="#contact"><i class="fa-solid fa-envelope nav-icon"></i>Contact</a>
             </nav>
 
             <div class="header-actions">
@@ -452,16 +488,28 @@ document.getElementById('loginForm')?.addEventListener('submit', async function(
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     const errorDiv = document.getElementById('loginError');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    showToast('Connexion en cours...', 'info');
     try {
-        const res = await fetch('/api/v1/login', {
+        const res = await fetch('/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded','Accept': 'application/json','X-CSRF-TOKEN': csrfToken },
+            credentials: 'same-origin',
+             body: new URLSearchParams({
+        email,
+        password
+    })
         });
         const data = await res.json();
-        if (res.ok) { window.location.href = '/dashboard'; }
-        else { errorDiv.style.display = 'block'; errorDiv.textContent = data.message || 'Identifiants invalides'; }
-    } catch(err) { errorDiv.style.display = 'block'; errorDiv.textContent = 'Erreur de connexion'; }
+      if (res.ok) {
+    showToast('Connexion réussie 🎉', 'success');
+
+    setTimeout(() => {
+        window.location.href = data.redirect;
+    }, 800);
+}
+        else { showToast(data.message || 'Identifiants invalides', 'error'); errorDiv.style.display = 'block'; errorDiv.textContent = data.message || 'Identifiants invalides'; }
+    } catch(err) {  showToast('Erreur serveur ⚠️', 'error'); errorDiv.style.display = 'block'; errorDiv.textContent = 'Erreur de connexion'; }
 });
 
 document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
@@ -488,8 +536,18 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
             });
             const loginData = await loginRes.json();
             if (loginRes.ok) {
-                window.location.href = '/dashboard';
+                showToast('Connexion réussie 🎉', 'success');
+            setTimeout(() => {
+                if (data.role === 'admin') {
+                    window.location.href = '/admin';
+                } else if (data.role === 'moderateur') {
+                    window.location.href = '/moderation';
+                } else {
+                    window.location.href = '/dashboard';
+                }
+            }, 1200);
             } else {
+                showToast(data.message || 'Identifiants invalides', 'error');
                 errorDiv.style.display = 'block';
                 errorDiv.textContent = loginData.message || 'Erreur de connexion';
             }
@@ -504,12 +562,35 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
         }
     } catch(err) {
         console.error(err);
+        showToast('Erreur serveur ⚠️', 'error');
         errorDiv.style.display = 'block';
         errorDiv.textContent = err.message || 'Erreur de connexion';
     }
 });
-</script>
 
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    toast.innerHTML = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 4000);
+}
+</script>
+<div id="toastContainer" style="
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:9999;
+    display:flex;
+    flex-direction:column;
+    gap:12px;">
+</div>
 @stack('scripts')
 </body>
 </html>

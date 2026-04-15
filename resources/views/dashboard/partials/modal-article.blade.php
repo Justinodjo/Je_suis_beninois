@@ -2,7 +2,6 @@
    PARTIAL — MODAL ARTICLE (CRUD)
    Inclus dans: dashboard/index.blade.php, articles.blade.php
 ══════════════════════════════════════════ --}}
-
 <div class="modal-back" id="articleModal" onclick="if(event.target===this)closeModal('articleModal')">
     <div class="modal" style="max-width:780px;">
 
@@ -303,7 +302,7 @@ async function handleUpload(files) {
         try {
             const r = await fetch('/api/v1/media',{
                 method:'POST',
-                headers:{'X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
+                headers:{'X-CSRF-TOKEN':Laravel.csrfToken,'Accept':'application/json'},
                 body:fd
             });
             const d = await r.json();
@@ -362,7 +361,7 @@ async function saveArticle(statutOverride) {
     try {
         const r = await fetch(url, {
             method,
-            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
+            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':Laravel.csrfToken,'Accept':'application/json'},
             body: JSON.stringify(payload)
         });
         const d = await r.json();

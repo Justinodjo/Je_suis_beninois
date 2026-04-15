@@ -138,7 +138,7 @@
 </div>
 
 {{-- ══ MODAL ARTICLE ══ --}}
-@include('dashboard.partials.article-modal')
+@include('dashboard.partials.modal-article')
 
 @endsection
 

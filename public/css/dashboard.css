@@ -2,13 +2,6 @@
    DASHBOARD — JE SUIS BÉNINOIS
    Thème : Dark avec accents Vert | Jaune | Rouge Bénin
 ═══════════════════════════════════════════════════ */
-/* Importer Font Awesome depuis node_modules */
-@import '@fortawesome/fontawesome-free/css/all.min.css';
-
-/* Ou sélectionner uniquement les styles nécessaires */
-@import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
-@import '@fortawesome/fontawesome-free/css/solid.min.css';
-@import '@fortawesome/fontawesome-free/css/brands.min.css';
 :root {
     --dv:       #1B5E20;
     --dv-m:     #2E7D32;
