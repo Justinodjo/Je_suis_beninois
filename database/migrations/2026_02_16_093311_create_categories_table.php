@@ -16,6 +16,11 @@ return new class extends Migration
             $table->string('nom');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
+            $table->string('couleur', 20)->nullable();
+            $table->string('icone', 50)->nullable();
+            $table->integer('ordre')->default(0);
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->enum('statut', ['actif', 'inactif'])->default('actif');
             $table->timestamps();
         });
     }

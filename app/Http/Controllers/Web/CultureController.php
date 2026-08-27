@@ -61,21 +61,22 @@ class CultureController extends Controller
      */
     public function show($slug)
     {
-        $article = Article::with(['medias', 'categories', 'tags', 'user'])
+        $article = Article::with([
+                'medias', 'categories', 'tags', 'user',
+                'comments' => fn ($q) => $q->where('statut', 'approuvé')
+                    ->with('user:id,name,avatar')
+                    ->latest(),
+            ])
             ->where('slug', $slug)
-            ->where('statut', 'publié') // ✅ accent
+            ->where('statut', 'publié')
             ->firstOrFail();
 
-        // Incrémenter les vues
         $article->increment('nb_vues');
 
-        // Articles similaires (même catégorie)
         $relatedArticles = Article::with(['medias', 'categories'])
             ->where('id', '!=', $article->id)
-            ->where('statut', 'publié') // ✅ accent
-            ->whereHas('categories', function($q) use ($article) {
-                $q->whereIn('id', $article->categories->pluck('id'));
-            })
+            ->where('statut', 'publié')
+            ->whereHas('categories', fn ($q) => $q->whereIn('id', $article->categories->pluck('id')))
             ->limit(3)
             ->get();
 

@@ -199,7 +199,7 @@ async function loadMedia(page=1) {
     if (type)   url += `&type=${encodeURIComponent(type)}`;
 
     try {
-        const r = await fetch(url, {headers:{Accept:'application/json'}});
+        const r = await apiFetch(url, {headers:{Accept:'application/json'}});
         const d = await r.json();
         allMedia = d.data||[];
         document.getElementById('mediaCount').textContent = (d.total||0) + ' média' + ((d.total||0) !== 1 ? 's' : '');
@@ -378,9 +378,9 @@ function closeMediaModal() {
 async function saveMediaName() {
     if (!currentMedia) return;
     const nom = document.getElementById('media-nom').value;
-    await fetch(`/api/v1/media/${currentMedia.id}`, {
+    await apiFetch(`/api/v1/media/${currentMedia.id}`, {
         method: 'PUT',
-        headers: {'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
+        // headers: {'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
         body: JSON.stringify({ nom })
     });
     showToast('Média mis à jour ✓');
@@ -390,9 +390,9 @@ async function saveMediaName() {
 
 async function deleteCurrentMedia() {
     if (!currentMedia || !confirm(`Supprimer "${currentMedia.nom||'ce média'}" ?`)) return;
-    await fetch(`/api/v1/media/${currentMedia.id}`, {
+    await apiFetch(`/api/v1/media/${currentMedia.id}`, {
         method: 'DELETE',
-        headers: {'X-CSRF-TOKEN': CSRF_TOKEN}
+        // headers: {'X-CSRF-TOKEN': CSRF_TOKEN}
     });
     showToast('Média supprimé');
     closeMediaModal();
@@ -431,7 +431,7 @@ async function uploadFiles(files) {
         fd.append('type', file.type.startsWith('video') ? 'video' : 'image');
 
         try {
-            const r = await fetch('/api/v1/media', {
+            const r = await apiFetch('/api/v1/media', {
                 method: 'POST',
                 headers: {'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json'},
                 body: fd

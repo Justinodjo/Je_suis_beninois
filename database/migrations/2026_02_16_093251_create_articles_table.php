@@ -23,8 +23,7 @@ return new class extends Migration
             $table->enum('statut', ['brouillon', 'publié', 'archivé'])
                   ->default('brouillon');
 
-            $table->enum('type', ['article', 'featured', 'video', 'galerie'])
-                  ->default('article');
+            $table->enum('type', ['article', 'tradition', 'patrimoine','interview', 'featured', 'galerie', 'video'])->default('article');
 
             $table->unsignedInteger('nb_vues')->default(0);
             $table->unsignedInteger('nb_likes')->default(0);

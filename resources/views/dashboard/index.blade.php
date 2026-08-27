@@ -147,24 +147,24 @@
 async function loadStats() {
     try {
         const [arts, cats, tags, media] = await Promise.all([
-            fetch('/api/v1/articles?per_page=1').then(r=>r.json()),
-            fetch('/api/v1/categories').then(r=>r.json()),
-            fetch('/api/v1/tags').then(r=>r.json()),
-            fetch('/api/v1/media?per_page=1').then(r=>r.json()),
+            apiFetch('/api/v1/articles?per_page=1').then(r=>r.json()),
+            apiFetch('/api/v1/categories').then(r=>r.json()),
+            apiFetch('/api/v1/tags').then(r=>r.json()),
+            apiFetch('/api/v1/media?per_page=1').then(r=>r.json()),
         ]);
 
         document.getElementById('statArticles').textContent = arts.total || 0;
 
-        const drafts = await fetch('/api/v1/articles?statut=brouillon&per_page=1').then(r=>r.json());
+        const drafts = await apiFetch('/api/v1/articles?statut=brouillon&per_page=1').then(r=>r.json());
         document.getElementById('statDraft').textContent = (drafts.total||0) + ' brouillons';
 
-        const allArts = await fetch('/api/v1/articles?per_page=100').then(r=>r.json());
+        const allArts = await apiFetch('/api/v1/articles?per_page=100').then(r=>r.json());
         const vues = (allArts.data||[]).reduce((s,a)=>s+(a.nb_vues||0),0);
         document.getElementById('statVues').textContent = vues > 999 ? (vues/1000).toFixed(1)+'k' : vues;
         document.getElementById('statLikes').textContent = (allArts.data||[]).reduce((s,a)=>s+(a.nb_likes||0),0);
         document.getElementById('statUsers').textContent = '16';
 
-        const comments = await fetch('/api/v1/comments?per_page=1').then(r=>r.json()).catch(()=>({total:0}));
+        const comments = await apiFetch('/api/v1/comments?per_page=1').then(r=>r.json()).catch(()=>({total:0}));
         document.getElementById('statComments').textContent = (comments.total||0) + ' commentaires';
 
         loadTypeChart(allArts.data||[]);
@@ -282,7 +282,7 @@ function loadActivityChart() {
 
 async function loadComments() {
     try {
-        const r = await fetch('/api/v1/comments?per_page=4&statut=en_attente');
+        const r = await apiFetch('/api/v1/comments?per_page=4&statut=en_attente');
         const d = await r.json();
         const pending = d.total || 0;
         if (pending > 0) {
@@ -312,9 +312,9 @@ async function loadComments() {
 }
 
 async function moderateComment(id, statut) {
-    await fetch(`/api/v1/comments/${id}`, {
+    await apiFetch(`/api/v1/comments/${id}`, {
         method:'PUT',
-        headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
+        // headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
         body: JSON.stringify({statut})
     });
     showToast(statut==='publie' ? 'Commentaire approuvé ✓' : 'Commentaire rejeté', statut==='publie'?'success':'error');

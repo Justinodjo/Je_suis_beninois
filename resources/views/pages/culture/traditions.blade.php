@@ -262,6 +262,8 @@
     display: flex; align-items: center; justify-content: center;
     opacity: 0;
     transition: opacity .25s;
+    color: #fff;
+    font-size: 1.4rem;
 }
 .galerie-item:hover .galerie-item-overlay { opacity: 1; }
 .galerie-item-play {
@@ -270,6 +272,7 @@
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.2rem;
+    color: var(--vert);
 }
 .galerie-footer {
     text-align: center;
@@ -357,14 +360,14 @@
                 </a>
                 @else
                 <div style="padding:60px 20px;text-align:center;color:var(--gris-t);">
-                    <div style="font-size:3rem;margin-bottom:12px;">🥁</div>
+                    <div style="font-size:3rem;margin-bottom:12px;"><i class="fa-solid fa-drum"></i></div>
                     <p>Aucun article de tradition disponible.</p>
                 </div>
                 @endif
 
                 {{-- ── Glétons du Bénin card (Image 1) ── --}}
                 <div class="gletons-card">
-                    <div class="gletons-icon">🌿</div>
+                    <div class="gletons-icon"><i class="fa-solid fa-leaf"></i></div>
                     <div class="gletons-text">
                         <h4>Glétons du Bénin</h4>
                         <p>Saveur emblématique de la cuisine béninoise depuis des générations. Une feuille, cent recettes.</p>
@@ -465,9 +468,9 @@
                      alt="Galerie {{ $i+1 }}">
                 <div class="galerie-item-overlay">
                     @if((is_object($media) ? $media->type : $media['type']) === 'video')
-                    <div class="galerie-item-play">▶</div>
+                    <div class="galerie-item-play"><i class="fa-solid fa-play"></i></div>
                     @else
-                    <div style="color:#fff;font-size:1.5rem;">🔍</div>
+                    <i class="fa-solid fa-magnifying-glass"></i>
                     @endif
                 </div>
             </div>

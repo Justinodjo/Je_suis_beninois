@@ -167,6 +167,7 @@
     font-size: .72rem;
     color: var(--gris-t);
 }
+.patrimoine-card-stats i { margin-right: 4px; }
 
 /* ══════════ CTA BAS — "En avant notre culture" (Image 3) ══════════ */
 .patrimoine-cta {
@@ -298,8 +299,8 @@
                             Lire l'article →
                         </a>
                         <div class="patrimoine-card-stats">
-                            <span>👁️ {{ number_format($item?->nb_vues ?? rand(100,800)) }}</span>
-                            <span>❤️ {{ $item?->nb_likes ?? rand(20,150) }}</span>
+                            <span><i class="fa-regular fa-eye"></i>{{ number_format($item?->nb_vues ?? rand(100,800)) }}</span>
+                            <span><i class="fa-solid fa-heart"></i>{{ $item?->nb_likes ?? rand(20,150) }}</span>
                         </div>
                     </div>
                 </div>
@@ -346,7 +347,7 @@
                             Lire →
                         </a>
                         <div class="patrimoine-card-stats">
-                            <span>❤️ {{ $item?->nb_likes ?? rand(10,80) }}</span>
+                            <span><i class="fa-solid fa-heart"></i>{{ $item?->nb_likes ?? rand(10,80) }}</span>
                         </div>
                     </div>
                 </div>

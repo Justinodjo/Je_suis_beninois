@@ -28,25 +28,25 @@
 {{-- ══ KPI CARDS ══ --}}
 <div class="stats-grid" style="margin-bottom:24px;">
     <div class="stat-card s-vert">
-        <div class="stat-icon">📝</div>
+        <div class="stat-icon"><i class="fa-solid fa-newspaper"></i></div>
         <div class="stat-label">Articles publiés</div>
         <div class="stat-value" id="kpi-articles">—</div>
         <div class="stat-sub">Total : <span id="kpi-total" class="up">—</span></div>
     </div>
     <div class="stat-card s-jaune">
-        <div class="stat-icon">👁️</div>
+        <div class="stat-icon"><i class="fa-regular fa-eye"></i></div>
         <div class="stat-label">Vues totales</div>
         <div class="stat-value" id="kpi-vues">—</div>
         <div class="stat-sub">Moy/article : <span id="kpi-vues-moy" class="up">—</span></div>
     </div>
     <div class="stat-card s-rouge">
-        <div class="stat-icon">❤️</div>
+        <div class="stat-icon"><i class="fa-solid fa-heart"></i></div>
         <div class="stat-label">Likes</div>
         <div class="stat-value" id="kpi-likes">—</div>
         <div class="stat-sub">Moy/article : <span id="kpi-likes-moy" class="up">—</span></div>
     </div>
     <div class="stat-card s-bleu">
-        <div class="stat-icon">💬</div>
+        <div class="stat-icon"><i class="fa-solid fa-comments"></i></div>
         <div class="stat-label">Commentaires</div>
         <div class="stat-value" id="kpi-comments">—</div>
         <div class="stat-sub">En attente : <span id="kpi-pending" style="color:#fb923c;">—</span></div>
@@ -59,7 +59,7 @@
     {{-- Vues par jour (barres) --}}
     <div class="chart-wrap">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-            <div class="chart-title">📈 Vues par jour</div>
+            <div class="chart-title"><i class="fa-solid fa-chart-line" style="color:var(--dv-l);margin-right:6px;"></i>Vues par jour</div>
             <div style="display:flex;gap:10px;font-size:.72rem;color:var(--text-d);">
                 <span><span style="display:inline-block;width:10px;height:10px;background:var(--dv-l);border-radius:2px;margin-right:3px;"></span>Vues</span>
                 <span><span style="display:inline-block;width:10px;height:10px;background:var(--dy);border-radius:2px;margin-right:3px;"></span>Likes</span>
@@ -71,7 +71,7 @@
 
     {{-- Top types --}}
     <div class="chart-wrap">
-        <div class="chart-title" style="margin-bottom:16px;">🏆 Articles par type</div>
+        <div class="chart-title" style="margin-bottom:16px;"><i class="fa-solid fa-trophy" style="color:var(--dy);margin-right:6px;"></i>Articles par type</div>
         <div id="typesChart" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
 </div>
@@ -81,7 +81,7 @@
     {{-- Top articles ——--}}
     <div class="table-wrap">
         <div class="table-top">
-            <div class="sec-title">🔥 Articles les plus vus</div>
+            <div class="sec-title"><i class="fa-solid fa-fire" style="color:var(--rouge);margin-right:6px;"></i>Articles les plus vus</div>
         </div>
         <table>
             <thead><tr><th>#</th><th>Titre</th><th>Type</th><th>Vues</th><th>Likes</th></tr></thead>
@@ -94,7 +94,7 @@
     {{-- Catégories populaires ──--}}
     <div class="table-wrap">
         <div class="table-top">
-            <div class="sec-title">🏷️ Catégories populaires</div>
+            <div class="sec-title"><i class="fa-solid fa-tags" style="color:var(--dv-l);margin-right:6px;"></i>Catégories populaires</div>
         </div>
         <div id="topCategories" style="padding:16px;display:flex;flex-direction:column;gap:10px;">
             <div style="color:var(--text-d);font-size:.8rem;text-align:center;padding:20px;">Chargement…</div>
@@ -105,7 +105,7 @@
 {{-- ══ RÉSUMÉ UTILISATEURS ══ --}}
 <div class="chart-wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="chart-title">👥 Répartition des utilisateurs</div>
+        <div class="chart-title"><i class="fa-solid fa-users" style="color:var(--dv-l);margin-right:6px;"></i>Répartition des utilisateurs</div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;" id="usersStats">
         <div style="background:rgba(27,94,32,.15);border:1px solid rgba(27,94,32,.3);border-radius:8px;padding:16px;text-align:center;">
@@ -141,9 +141,9 @@ function setPeriod(p) {
 async function loadStats() {
     try {
         const [arts, comments, cats] = await Promise.all([
-            fetch('/api/v1/articles?per_page=100',{headers:{Accept:'application/json'}}).then(r=>r.json()),
-            fetch('/api/v1/comments?per_page=1',{headers:{Accept:'application/json'}}).then(r=>r.json()).catch(()=>({total:0})),
-            fetch('/api/v1/categories',{headers:{Accept:'application/json'}}).then(r=>r.json()),
+            apiFetch('/api/v1/articles?per_page=100',{headers:{Accept:'application/json'}}).then(r=>r.json()),
+            apiFetch('/api/v1/comments?per_page=1',{headers:{Accept:'application/json'}}).then(r=>r.json()).catch(()=>({total:0})),
+            apiFetch('/api/v1/categories',{headers:{Accept:'application/json'}}).then(r=>r.json()),
         ]);
         const articles = arts.data || [];
         const publie   = articles.filter(a=>a.statut==='publié');
@@ -159,7 +159,7 @@ async function loadStats() {
         document.getElementById('kpi-likes-moy').textContent= publie.length ? (totalLikes/publie.length).toFixed(1) : 0;
         document.getElementById('kpi-comments').textContent = comments.total || 0;
 
-        const drafts = await fetch('/api/v1/comments?statut=en_attente&per_page=1',{headers:{Accept:'application/json'}}).then(r=>r.json()).catch(()=>({total:0}));
+        const drafts = await apiFetch('/api/v1/comments?statut=en_attente&per_page=1',{headers:{Accept:'application/json'}}).then(r=>r.json()).catch(()=>({total:0}));
         document.getElementById('kpi-pending').textContent = drafts.total || 0;
 
         // Graphiques
@@ -208,12 +208,19 @@ function renderTypesChart(articles) {
     articles.forEach(a => types[a.type]=(types[a.type]||0)+1);
     const total = articles.length || 1;
     const colors = {article:'#3b82f6',tradition:'#f59e0b',patrimoine:'#8b5cf6',interview:'#14b8a6',featured:'var(--dy)',galerie:'#ec4899'};
-    const icons  = {article:'📰',tradition:'🥁',patrimoine:'🏛️',interview:'🎤',featured:'⭐',galerie:'🖼️'};
+    const icons  = {
+        article:    '<i class="fa-solid fa-newspaper"></i>',
+        tradition:  '<i class="fa-solid fa-drum"></i>',
+        patrimoine: '<i class="fa-solid fa-landmark"></i>',
+        interview:  '<i class="fa-solid fa-microphone"></i>',
+        featured:   '<i class="fa-solid fa-star"></i>',
+        galerie:    '<i class="fa-solid fa-images"></i>',
+    };
 
     document.getElementById('typesChart').innerHTML = Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n]) => `
         <div>
             <div style="display:flex;align-items:center;justify-content:space-between;font-size:.78rem;margin-bottom:5px;">
-                <span style="color:var(--text-m);display:flex;align-items:center;gap:5px;">${icons[t]||'📝'} ${t}</span>
+                <span style="color:var(--text-m);display:flex;align-items:center;gap:5px;">${icons[t]||'<i class="fa-solid fa-file"></i>'} ${t}</span>
                 <span style="color:var(--text-d);font-family:var(--fm);">${n} — ${(n/total*100).toFixed(0)}%</span>
             </div>
             <div class="prog-bar">

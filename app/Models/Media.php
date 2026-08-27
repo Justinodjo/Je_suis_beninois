@@ -13,6 +13,7 @@ class Media extends Model
     protected $table = 'media'; // ✅ Table au singulier (votre migration crée 'media')
 
     protected $fillable = [
+        'nom',
         'titre',
         'description',
         'type',
@@ -20,6 +21,7 @@ class Media extends Model
         // Harmonisé avec la migration create_media_table.php
         'url',
         'url_thumbnail',
+        'chemin',
         'mime_type',
         'taille',
         'largeur',
@@ -41,23 +43,21 @@ class Media extends Model
      * ✅ CORRECTION : La migration stocke l'URL directe (pas un path Storage)
      * Retourner l'URL telle quelle si elle commence par http, sinon via Storage
      */
-     /**
-     * ✅ Toujours retourner une URL absolue
-     */
-    public function getUrlAttribute($value): ?string
+    public function getUrlAttribute($value)
     {
-        if (!$value && $this->chemin) {
-            return Storage::url($this->chemin);
-        }
-        return $value;
+        if (!$value) return null;
+        if (str_starts_with($value, 'http')) return $value;
+        return Storage::disk('public')->url($value);
     }
 
-    public function getUrlThumbnailAttribute($value): ?string
+
+    public function getThumbnailUrlAttribute()
     {
-        if (!$value && $this->type === 'image' && $this->chemin) {
-            return Storage::url($this->chemin);
-        }
-        return $value;
+        $value = $this->attributes['url_thumbnail'] ?? null;
+        
+        if (!$value) return null;
+        if (str_starts_with($value, 'http')) return $value;
+        return Storage::disk('public')->url($value);
     }
 
     /**

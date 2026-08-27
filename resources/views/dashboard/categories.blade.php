@@ -200,7 +200,7 @@
 <script>
 // ── Charger catégories ──
 async function loadCategories() {
-    const r = await fetch('/api/v1/categories',{headers:{Accept:'application/json'}});
+    const r = await apiFetch('/api/v1/categories',{headers:{Accept:'application/json'}});
     const d = await r.json();
     const cats = d.data || d || [];
     document.getElementById('catCount').textContent = cats.length + ' catégorie' + (cats.length !== 1 ? 's' : '');
@@ -258,7 +258,7 @@ async function loadCategories() {
 
 // ── Charger tags ──
 async function loadTags() {
-    const r = await fetch('/api/v1/tags',{headers:{Accept:'application/json'}});
+    const r = await apiFetch('/api/v1/tags',{headers:{Accept:'application/json'}});
     const d = await r.json();
     const tags = d.data || d || [];
     document.getElementById('tagCount').textContent = tags.length + ' tag' + (tags.length !== 1 ? 's' : '');
@@ -345,9 +345,9 @@ async function saveCategory() {
 
     const method = id ? 'PUT' : 'POST';
     const url    = id ? `/api/v1/categories/${id}` : '/api/v1/categories';
-    const r = await fetch(url, {
+    const r = await apiFetch(url, {
         method,
-        headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
+        // headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
         body: JSON.stringify(payload)
     });
     const d = await r.json();
@@ -384,9 +384,9 @@ async function saveTag() {
 
     const method = id ? 'PUT' : 'POST';
     const url    = id ? `/api/v1/tags/${id}` : '/api/v1/tags';
-    const r = await fetch(url, {
+    const r = await apiFetch(url, {
         method,
-        headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
+        // headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
         body: JSON.stringify({ nom })
     });
     const d = await r.json();

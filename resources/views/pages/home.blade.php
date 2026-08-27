@@ -362,6 +362,11 @@
     transform: scale(1.2);
 }
 
+.video-meta i {
+    margin-right: 4px;
+    color: var(--jaune);
+}
+
 </style>
 @endpush
 
@@ -369,7 +374,7 @@
 
 {{-- ════ BANDEAU MÉTÉO (mobile, Image 6) ════ --}}
 <div class="meteo-band">
-    <span>☀️</span>
+    <span><i class="fa-solid fa-sun"></i></span>
     <span>Matinée ensoleillée sur Porto-Novo aujourd'hui, température actuelle de 28°C</span>
     <div class="meteo-flag-mini" style="margin-left:auto;"><div class="fv"></div><div class="fy"></div><div class="fr"></div></div>
 </div>
@@ -484,7 +489,7 @@
             </article>
             @empty
             <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--gris-t);">
-                <div style="font-size:3rem;margin-bottom:16px;">📝</div>
+                <div style="font-size:3rem;margin-bottom:16px;"><i class="fa-solid fa-newspaper"></i></div>
                 <p style="font-size:1rem;margin-bottom:20px;">Aucun article disponible pour le moment.</p>
                 @auth
                 <a href="{{ route('dashboard.articles') }}" class="btn btn-vert">Créer le premier article</a>
@@ -553,8 +558,8 @@
                 </div>
                 <div class="video-title">#JE_SUIS_BÉNINOIS : Retour sur les temps forts de l'année</div>
                 <div class="video-meta">
-                    <span>❤️ 322</span>
-                    <span>💬</span>
+                    <span><i class="fa-solid fa-heart"></i>322</span>
+                    <span><i class="fa-solid fa-comment"></i></span>
                     <span>Il y a 8min</span>
                 </div>
             </div>

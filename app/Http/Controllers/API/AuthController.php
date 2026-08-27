@@ -5,58 +5,106 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class AuthController extends Controller
 {
     /**
-     * Login utilisateur et création du token
+     * Connexion utilisateur avec JWT
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'email'    => 'required|email',
+        $credentials = $request->validate([
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $token = Auth::guard('api')->attempt($credentials)) {
             return response()->json([
                 'message' => 'Identifiants invalides'
             ], 401);
         }
 
-        // Vérifier le statut
+        $user = Auth::guard('api')->user();
+
         if ($user->statut !== 'actif') {
+            Auth::guard('api')->logout();
+
             return response()->json([
                 'message' => 'Compte ' . $user->statut
             ], 403);
         }
 
-        // Supprimer les anciens tokens
-        $user->tokens()->delete();
-
-        // Créer un nouveau token
-        $token = $user->createToken('api-token')->plainTextToken;
+        // Mettre à jour la dernière connexion
+        $user->update([
+            'date_derniere_connexion' => now()
+        ]);
 
         return response()->json([
             'message' => 'Connexion réussie',
-            'user'    => $user,
-            'token'   => $token,
+
+            'user' => $user->only([
+                'id',
+                'name',
+                'email',
+                'role',
+                'avatar',
+                'bio',
+                'statut'
+            ]),
+
+            'token' => $token,
+            'token_type' => 'Bearer',
+
+            'expires_in' =>
+                Auth::guard('api')->factory()->getTTL() * 60,
         ]);
     }
 
     /**
-     * Déconnexion utilisateur (supprime le token)
+     * Utilisateur connecté
      */
-    public function logout(Request $request)
+    public function me()
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = Auth::guard('api')->user();
+
+        return response()->json([
+            'user' => $user->only([
+                'id',
+                'name',
+                'email',
+                'role',
+                'avatar',
+                'bio',
+                'statut'
+            ])
+        ]);
+    }
+
+    /**
+     * Déconnexion JWT
+     */
+    public function logout()
+    {
+        Auth::guard('api')->logout();
 
         return response()->json([
             'message' => 'Déconnexion réussie'
+        ]);
+    }
+
+    /**
+     * Rafraîchir le token JWT
+     */
+    public function refresh()
+    {
+        $token = Auth::guard('api')->refresh();
+
+        return response()->json([
+            'token' => $token,
+            'token_type' => 'Bearer',
+
+            'expires_in' =>
+                Auth::guard('api')->factory()->getTTL() * 60,
         ]);
     }
 }

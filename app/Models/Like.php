@@ -10,13 +10,13 @@ class Like extends Model
     use HasFactory;
 
     protected $fillable = [
-        'articles_id',
+        'article_id',
         'user_id'
     ];
 
     public function article()
     {
-        return $this->belongsTo(Article::class, 'articles_id');
+        return $this->belongsTo(Article::class);
     }
 
     public function user()

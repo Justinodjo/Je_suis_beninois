@@ -310,3 +310,36 @@ select.f-control { cursor:pointer; }
     .table-top { flex-direction:column; align-items:flex-start; }
     .sec-actions { flex-wrap:wrap; }
 }
+
+.toast.toast-confirm {
+    min-width: 340px;
+    max-width: 460px;
+    align-items: center;
+}
+
+.toast-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity .15s;
+}
+
+.toast-btn:hover {
+    opacity: .85;
+}
+
+.toast-btn-cancel {
+    background: rgba(255,255,255,.1);
+    color: #fff;
+}
+
+.toast-btn-confirm {
+    background: #C62828;
+    color: #fff;
+}

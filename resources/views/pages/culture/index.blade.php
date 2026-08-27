@@ -21,6 +21,7 @@
 .culture-card-title { font-weight:700; margin-bottom:8px; }
 .culture-card-excerpt { font-size:.85rem; color:var(--text-l); margin-bottom:10px; }
 .culture-card-footer { display:flex; justify-content:space-between; font-size:.75rem; color:var(--gris-t);}
+.culture-card-footer i { margin-right: 4px; color: var(--vert); }
 </style>
 @endpush
 
@@ -64,8 +65,8 @@
                     </h3>
                     <p class="culture-card-excerpt">{{ Str::limit($item?->extrait ?? $fb['extrait'], 140) }}</p>
                     <div class="culture-card-footer">
-                        <span>👁️ {{ number_format($item?->nb_vues ?? rand(100,800)) }}</span>
-                        <span>❤️ {{ $item?->nb_likes ?? rand(10,150) }}</span>
+                        <span><i class="fa-regular fa-eye"></i>{{ number_format($item?->nb_vues ?? rand(100,800)) }}</span>
+                        <span><i class="fa-solid fa-heart"></i>{{ $item?->nb_likes ?? rand(10,150) }}</span>
                     </div>
                 </div>
             </article>

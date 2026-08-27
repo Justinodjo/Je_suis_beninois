@@ -46,6 +46,11 @@
     font-size: .85rem;
 }
 
+.interview-card-footer i {
+    margin-right: 4px;
+    color: var(--vert);
+}
+
 </style>
 @endpush
 
@@ -67,7 +72,7 @@
         @forelse($interviews as $interview)
             <article class="interview-card">
                 <a href="{{ route('interviews.show', $interview->slug) }}">
-                    <img src="{{ $interview->medias->first()?->url ?? 'https://via.placeholder.com/400x200' }}" 
+                    <img src="{{ $interview->medias->first()?->url ?? 'https://placehold.co/400x200/1B5E20/FFD700?text=Interview' }}" 
                          alt="{{ $interview->titre }}">
                 </a>
                 <div class="interview-card-body">
@@ -76,8 +81,8 @@
                     </h3>
                     <p class="interview-card-excerpt">{{ Str::limit($interview->extrait ?? $interview->contenu, 120) }}</p>
                     <div class="interview-card-footer">
-                        <span>👁️ {{ number_format($interview->nb_vues ?? rand(100,800)) }}</span>
-                        <span>❤️ {{ $interview->nb_likes ?? rand(10,150) }}</span>
+                        <span><i class="fa-regular fa-eye"></i>{{ number_format($interview->nb_vues ?? rand(100,800)) }}</span>
+                        <span><i class="fa-solid fa-heart"></i>{{ $interview->nb_likes ?? rand(10,150) }}</span>
                     </div>
                 </div>
             </article>

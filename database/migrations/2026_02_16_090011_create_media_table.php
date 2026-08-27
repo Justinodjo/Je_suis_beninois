@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->id();
+            $table->string('nom')->nullable();
+            $table->string('chemin')->nullable();
             $table->string('titre')->nullable();
             $table->text('description')->nullable();
             $table->enum('type', ['image', 'video', 'audio']);

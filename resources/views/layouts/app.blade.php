@@ -94,6 +94,7 @@
         padding: 6px 14px; font-size: 0.88rem; font-weight: 500;
         color: var(--text-l); border-radius: 6px;
         transition: all .2s; white-space: nowrap;
+        position: relative;
     }
     .main-nav a:hover, .main-nav a.active { color: var(--vert); background: rgba(27,94,32,0.07); }
 
@@ -108,6 +109,28 @@
     .btn-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-l); transition: background .2s; }
     .btn-icon:hover { background: var(--gris-c); }
     .btn-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ── Burger mobile ── */
+    .nav-burger {
+        display: none;
+        width: 40px; height: 40px;
+        border: none; background: none;
+        align-items: center; justify-content: center;
+        font-size: 1.3rem; color: var(--vert);
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background .2s;
+    }
+    .nav-burger:hover { background: var(--gris-c); }
+
+    /* ── Overlay mobile ── */
+    .nav-mobile-overlay {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,.45);
+        z-index: 150;
+    }
+    .nav-mobile-overlay.show { display: block; }
 
     /* ═══════════════════════════════════════════
        BOUTONS GLOBAUX
@@ -140,10 +163,33 @@
     .footer-col h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--jaune); margin-bottom: 14px; }
     .footer-col a { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.7); margin-bottom: 8px; transition: color .2s; }
     .footer-col a:hover { color: #fff; }
-    .footer-socials { display: flex; gap: 10px; margin-top: 16px; }
-    .footer-social { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: background .2s; }
-    .footer-social:hover { background: var(--jaune); color: #000; }
     .footer-bottom { border-top: 1px solid rgba(255,255,255,0.12); padding: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: rgba(255,255,255,0.4); }
+
+    /* ── Réseaux sociaux footer (définition unique, nettoyée) ── */
+    .footer-socials {
+        display: flex;
+        gap: 14px;
+        margin-top: 16px;
+    }
+    .footer-social {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1rem;
+        transition: transform .25s ease, background .25s ease;
+    }
+    .footer-social:hover { transform: translateY(-4px); }
+    .footer-social:nth-child(1):hover { background: #1877f2; } /* Facebook */
+    .footer-social:nth-child(2):hover { background: #000; }     /* X */
+    .footer-social:nth-child(3):hover { background: #ff0000; }  /* YouTube */
+    .footer-social:nth-child(4):hover {
+        background: linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7);
+    }
 
     /* ════════════════════════════════════════
    FORMULAIRES MODALE
@@ -190,67 +236,48 @@
 #authModal a:hover {
     color: var(--vert-l);
 }
-.footer-socials {
-    display: flex;
-    gap: 14px;
-}
 
-.footer-social {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 1rem;
-    transition: all .25s ease;
-}
+    /* ═══════════════════════════════════════════
+       MENU MOBILE (RESPONSIVE)
+    ═══════════════════════════════════════════ */
+    @media (max-width: 900px) {
+        .nav-burger { display: flex; }
 
-.footer-social:hover {
-    transform: translateY(-4px);
-}
+        .main-nav {
+            position: fixed;
+            top: 0; right: -280px;
+            width: 260px;
+            height: 100vh;
+            background: #fff;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+            padding: 80px 20px 20px;
+            z-index: 200;
+            transition: right .25s ease;
+            box-shadow: -8px 0 24px rgba(0,0,0,.12);
+        }
+        .main-nav.open { right: 0; }
+        .main-nav a {
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: .95rem;
+        }
 
-/* Couleurs au hover */
-.footer-social:nth-child(1):hover { background: #1877f2; } /* Facebook */
-.footer-social:nth-child(2):hover { background: #000; }     /* X */
-.footer-social:nth-child(3):hover { background: #ff0000; }  /* YouTube */
-.footer-social:nth-child(4):hover { 
-    background: linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); 
-}
-.toast {
-    min-width: 260px;
-    padding: 14px 18px;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 500;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    animation: slideIn .3s ease, fadeOut .4s ease 3.6s forwards;
-}
-.main-nav a.active .nav-icon{
-    color: var(--vert);
-}
-.toast-success { background: #2E7D32; }
-.toast-error   { background: #C62828; }
-.toast-info    { background: #1565C0; }
+        .header-actions .btn-login,
+        .header-actions .btn-secondary { display: none; }
+    }
+    @media (min-width: 901px) {
+        .nav-mobile-close { display: none; }
+    }
 
-@keyframes slideIn {
-    from { opacity:0; transform:translateX(30px); }
-    to   { opacity:1; transform:translateX(0); }
-}
-
-@keyframes fadeOut {
-    to { opacity:0; transform:translateX(30px); }
-}
     </style>
 
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <!-- <link rel="stylesheet" href="{{ asset('css/app.css') }}"> -->
+     @vite(['resources/css/app.css'])
 
     @stack('styles')
 </head>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <body>
 
 <!-- Pattern décoratif top -->
@@ -260,7 +287,7 @@
 <header class="site-header">
     <div class="container">
         <div class="header-inner">
-         
+
             <a href="{{ route('home') }}" class="navbar-brand">
              <div class="logo-flag">
     <img src="{{ asset('images/logo.jpeg') }}"
@@ -269,42 +296,64 @@
          </div>
 </a>
 
+            {{-- Overlay mobile --}}
+            <div class="nav-mobile-overlay" id="navMobileOverlay" onclick="closeMobileNav()"></div>
 
-            <nav class="main-nav">
-            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">
-        <i class="fa-solid fa-house"></i> Accueil
-    </a>
-    <a href="{{ route('actualites') }}" class="{{ request()->routeIs('actualites') ? 'active' : '' }}">
-        <i class="fa-solid fa-newspaper"></i> Actualités
-    </a>
-                <a href="{{ route('culture.index') }}" class="{{ request()->routeIs('culture.*') ? 'active' : '' }}"><i class="fa-solid fa-landmark nav-icon"></i>Culture</a>
-                <a href="{{ route('culture.index') }}?type=patrimoine" class="{{ request()->routeIs('culture.patrimoine') ? 'active' : '' }}"> <i class="fa-solid fa-scroll nav-icon"></i>Histoire</a>
-                <a href="{{ route('tourisme.index') }}" class="{{ request()->routeIs('tourisme.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-plane-departure"></i> Tourisme
-                </a>
-                <a href="{{ route('ecommerce.index') }}" class="{{ request()->routeIs('ecommerce.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-cart-shopping"></i> E-commerce
-                </a>
-                <a href="{{ route('interviews.index') }}" class="{{ request()->routeIs('interviews.*') ? 'active' : '' }}"><i class="fa-solid fa-microphone nav-icon"></i>
-Interviews</a>
-                <a href="#contact"><i class="fa-solid fa-envelope nav-icon"></i>Contact</a>
+            <nav class="main-nav" id="mainNav">
+                <button class="btn-icon nav-mobile-close" onclick="closeMobileNav()" style="align-self:flex-end;margin-bottom:12px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Actualités</a>
+                <a href="{{ route('culture.index') }}" class="{{ request()->routeIs('culture.index') ? 'active' : '' }}">Culture</a>
+                <a href="{{ route('culture.patrimoine') }}" class="{{ request()->routeIs('culture.patrimoine') ? 'active' : '' }}">Histoire</a>
+                <a href="#galerie">Galerie</a>
+                <a href="{{ route('interviews.index') }}" class="{{ request()->routeIs('interviews.*') ? 'active' : '' }}">Interviews</a>
+                <a href="#contact">Contact</a>
             </nav>
 
             <div class="header-actions">
-                <a href="#" class="btn-icon">
-                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                </a>
-                @auth
-                    <a href="{{ route('dashboard.index') }}" class="btn btn-primary" style="font-size:.82rem;padding:8px 18px;">
-                        🎛️ Dashboard
-                    </a>
-                @else
-                    <button onclick="document.getElementById('authModal').style.display='flex'" class="btn btn-login">
-    Se connecter
-</button>
 
-                @endauth
-            </div>
+    <a href="#" class="btn-icon">
+        <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+        </svg>
+    </a>
+
+    @auth
+
+        <a
+            href="{{ route('dashboard.index') }}"
+            class="btn btn-primary"
+            style="font-size:.82rem;padding:8px 18px;"
+        >
+            <i class="fa-solid fa-gauge-high"></i>
+            Dashboard
+        </a>
+
+    @else
+
+        <a
+            href="{{ route('login') }}"
+            class="btn btn-login"
+        >
+            Se connecter
+        </a>
+
+        <a
+            href="{{ route('register') }}"
+            class="btn btn-secondary"
+        >
+            S'inscrire
+        </a>
+
+    @endauth
+
+    <button class="nav-burger" onclick="openMobileNav()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+</div>
         </div>
     </div>
 </header>
@@ -373,18 +422,10 @@ Interviews</a>
         </div>
         <div class="footer-bottom">
             <span>© {{ date('Y') }} Je Suis Béninois. Tous droits réservés.</span>
-            <span>    <a href="{{ route('home') }}" class="navbar-brand">
-             <div class="logo-flag">
-    <img src="{{ asset('images/logo.jpeg') }}"
-         alt="Je Suis Béninois"
-         class="site-logo">
-         </div>
-</a> Fait avec fierté</span>
+            <span>Fait avec fierté</span>
         </div>
     </div>
 </footer>
-
-
 
 <!-- ═══ MODAL AUTH ═══ -->
 <div id="authModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
@@ -467,15 +508,14 @@ Interviews</a>
 </div>
 @if(session('showLoginModal'))
     <script>
-        // Exemple avec Bootstrap modal
-        var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
-        myModal.show();
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('authModal').style.display = 'flex';
+        });
     </script>
 @endif
 
 
 <script>
-
 function toggleAuthSection() {
     const login = document.getElementById('loginSection');
     const register = document.getElementById('registerSection');
@@ -483,114 +523,110 @@ function toggleAuthSection() {
     register.style.display = register.style.display === 'none' ? 'block' : 'none';
 }
 
+const csrfToken = () => document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+// ── LOGIN ──
 document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
+    const email    = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     const errorDiv = document.getElementById('loginError');
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    showToast('Connexion en cours...', 'info');
-    try {
-        const res = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded','Accept': 'application/json','X-CSRF-TOKEN': csrfToken },
-            credentials: 'same-origin',
-             body: new URLSearchParams({
-        email,
-        password
-    })
-        });
-        const data = await res.json();
-      if (res.ok) {
-    showToast('Connexion réussie 🎉', 'success');
+    errorDiv.style.display = 'none';
 
-    setTimeout(() => {
-        window.location.href = data.redirect;
-    }, 800);
-}
-        else { showToast(data.message || 'Identifiants invalides', 'error'); errorDiv.style.display = 'block'; errorDiv.textContent = data.message || 'Identifiants invalides'; }
-    } catch(err) {  showToast('Erreur serveur ⚠️', 'error'); errorDiv.style.display = 'block'; errorDiv.textContent = 'Erreur de connexion'; }
+    try {
+       const res = await fetch('/api/v1/login', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
 });
 
-document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const name = document.getElementById('registerName').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const password_confirmation = document.getElementById('registerPasswordConfirmation').value;
-    const errorDiv = document.getElementById('registerError');
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    try {
-        const res = await fetch('/api/v1/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json','Accept': 'application/json',  'X-CSRF-TOKEN': csrfToken, },
-            body: JSON.stringify({ name, email, password, password_confirmation,role: 'visiteur' })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            // Connexion automatique après inscription
-            const loginRes = await fetch('/api/v1/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            const loginData = await loginRes.json();
-            if (loginRes.ok) {
-                showToast('Connexion réussie 🎉', 'success');
-            setTimeout(() => {
-                if (data.role === 'admin') {
-                    window.location.href = '/admin';
-                } else if (data.role === 'moderateur') {
-                    window.location.href = '/moderation';
-                } else {
-                    window.location.href = '/dashboard';
-                }
-            }, 1200);
-            } else {
-                showToast(data.message || 'Identifiants invalides', 'error');
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = loginData.message || 'Erreur de connexion';
-            }
-        } else {
-            errorDiv.style.display = 'block';
-            if(data.errors) {
-                // Affiche le premier message d'erreur
-                errorDiv.textContent = Object.values(data.errors)[0][0];
-            } else {
-                errorDiv.textContent = data.message || 'Erreur lors de l\'inscription';
-            }
-        }
-    } catch(err) {
-        console.error(err);
-        showToast('Erreur serveur ⚠️', 'error');
+       const data = await res.json();
+
+if (res.ok) {
+    localStorage.setItem('auth_token', data.access_token);
+
+    window.location.href = '/dashboard';
+} else {
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = data.message || 'Identifiants invalides';
+}
+    } catch (err) {
         errorDiv.style.display = 'block';
-        errorDiv.textContent = err.message || 'Erreur de connexion';
+        errorDiv.textContent   = 'Erreur de connexion';
     }
 });
 
-function showToast(message, type = 'success') {
-    const container = document.getElementById('toastContainer');
+// ── REGISTER ──
+document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name                  = document.getElementById('registerName').value;
+    const email                 = document.getElementById('registerEmail').value;
+    const password              = document.getElementById('registerPassword').value;
+    const password_confirmation = document.getElementById('registerPasswordConfirmation').value;
+    const errorDiv              = document.getElementById('registerError');
+    errorDiv.style.display = 'none';
 
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-' + type;
-    toast.innerHTML = message;
+    try {
+        // 1. Créer le compte
+        const res  = await fetch('/api/v1/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken(),
+            },
+            body: JSON.stringify({ name, email, password, password_confirmation, role: 'visiteur', statut: 'actif' })
+        });
+        const data = await res.json();
 
-    container.appendChild(toast);
+        if (!res.ok) {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent   = data.errors
+                ? Object.values(data.errors)[0][0]
+                : (data.message || "Erreur lors de l'inscription");
+            return;
+        }
 
-    setTimeout(() => {
-        toast.remove();
-    }, 4000);
+        // 2. Connexion avec session web
+        const loginRes  = await fetch('/web/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken(),
+            },
+            body: JSON.stringify({ email, password })
+        });
+        const loginData = await loginRes.json();
+
+        if (loginRes.ok) {
+            if (loginData.token) localStorage.setItem('auth_token', loginData.token);
+            window.location.href = loginData.redirect || '/';
+        } else {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent   = loginData.message || 'Erreur de connexion';
+        }
+    } catch (err) {
+        errorDiv.style.display = 'block';
+        errorDiv.textContent   = 'Erreur de connexion';
+    }
+});
+
+// ── MENU MOBILE ──
+function openMobileNav() {
+    document.getElementById('mainNav').classList.add('open');
+    document.getElementById('navMobileOverlay').classList.add('show');
+}
+
+function closeMobileNav() {
+    document.getElementById('mainNav').classList.remove('open');
+    document.getElementById('navMobileOverlay').classList.remove('show');
 }
 </script>
-<div id="toastContainer" style="
-    position:fixed;
-    top:20px;
-    right:20px;
-    z-index:9999;
-    display:flex;
-    flex-direction:column;
-    gap:12px;">
-</div>
+
 @stack('scripts')
 </body>
 </html>

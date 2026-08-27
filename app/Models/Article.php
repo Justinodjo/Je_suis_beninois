@@ -81,6 +81,20 @@ class Article extends Model
      */
     public function comments()
     {
-        return $this->hasMany(Comment::class, 'articles_id');
+        return $this->hasMany(Comment::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function isLikedBy(?int $userId): bool
+    {
+        if (! $userId) {
+            return false;
+        }
+
+        return $this->likes()->where('user_id', $userId)->exists();
     }
 }

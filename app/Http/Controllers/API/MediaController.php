@@ -90,7 +90,7 @@ class MediaController extends Controller
             'url_thumbnail' => $thumbnailUrl,
             'chemin'        => $storedPath,       // ← pour suppression future
             'mime_type'     => $file->getMimeType(),
-            'poids'         => $file->getSize(),
+            'taille'         => $file->getSize(),
             'largeur'       => $width,
             'hauteur'       => $height,
             'user_id'       => auth()->id(),

@@ -53,7 +53,9 @@
 .interview-hero-breadcrumb a { color: var(--jaune); }
 .interview-hero-breadcrumb span { color: rgba(255,255,255,.3); }
 .interview-hero-tag {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: rgba(255,215,0,.15);
     border: 1px solid rgba(255,215,0,.4);
     color: var(--jaune);
@@ -290,7 +292,7 @@
                 <span>{{ Str::limit($interview->titre, 30) }}</span>
             </div>
 
-            <div class="interview-hero-tag">🎤 Interview</div>
+            <div class="interview-hero-tag"><i class="fa-solid fa-microphone"></i> Interview</div>
             <div class="interview-hero-subtitle">Rencontre avec</div>
 
             <h1 class="interview-hero-name">
@@ -362,11 +364,17 @@
                 <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;">
                     <span style="font-size:.82rem;font-weight:600;color:var(--text-l);">Partager :</span>
                     <a href="https://www.facebook.com/sharer?u={{ urlencode(request()->url()) }}" target="_blank"
-                       style="width:36px;height:36px;border-radius:50%;background:#1877F2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;">f</a>
+                       style="width:36px;height:36px;border-radius:50%;background:#1877F2;color:#fff;display:flex;align-items:center;justify-content:center;">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
                     <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->url()) }}" target="_blank"
-                       style="width:36px;height:36px;border-radius:50%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;">𝕏</a>
+                       style="width:36px;height:36px;border-radius:50%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
                     <a href="https://wa.me/?text={{ urlencode($interview->titre . ' ' . request()->url()) }}" target="_blank"
-                       style="width:36px;height:36px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;">W</a>
+                       style="width:36px;height:36px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
                 </div>
             </div>
 
