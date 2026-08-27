@@ -72,6 +72,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('role:admin')->group(function () {
             // ✅ users : la faille de tout à l'heure est ici bouchée
             Route::apiResource('users', UserController::class)->except(['store']);
+            Route::post('/users', [UserController::class, 'adminStore']); // ✅ création admin
 
             Route::post('/categories', [CategoryController::class, 'store']);
             Route::put('/categories/{category}', [CategoryController::class, 'update']);

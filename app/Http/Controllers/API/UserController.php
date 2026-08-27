@@ -62,6 +62,36 @@ class UserController extends Controller
         );
     }
 
+
+    /**
+     * ✅ Création d'un utilisateur par un ADMIN — role/statut choisis librement
+     *    Protégé par 'role:admin' au niveau des routes.
+     */
+    public function adminStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role'     => ['required', Rule::in(['visiteur', 'contributeur', 'admin'])],
+            'statut'   => ['sometimes', Rule::in(['actif', 'inactif', 'banni'])],
+            'avatar'   => 'nullable|string',
+            'bio'      => 'nullable|string',
+        ]);
+
+        $validated['password']         = Hash::make($validated['password']);
+        $validated['statut']           = $validated['statut'] ?? 'actif';
+        $validated['date_inscription'] = now();
+
+        $user = User::create($validated);
+
+        return response()->json(
+            $user->only(['id', 'name', 'email', 'role', 'statut']),
+            201
+        );
+    }
+
+
     /**
      * ✅ Mise à jour d'un utilisateur par un ADMIN (rôle, statut, etc.)
      *    Protégé par 'role:admin' au niveau des routes.

@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CultureController;
 use App\Http\Controllers\Web\InterviewController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\InteractionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,4 +115,7 @@ Route::prefix('dashboard')
 
         Route::get('/stats', [DashboardController::class, 'stats'])
             ->name('stats');
+
+        Route::get('/users', [DashboardController::class, 'users'])
+            ->name('users');
     });

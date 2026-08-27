@@ -257,7 +257,7 @@ let currentPage = 1;
 async function loadUsers(page = 1) {
     currentPage = page;
     try {
-        const r = await fetch(`/api/v1/users?page=${page}`, {
+        const r = await apiFetch(`/api/v1/users?page=${page}`, {
             headers: { Accept: 'application/json' }
         });
         const d = await r.json();
@@ -398,10 +398,9 @@ async function applyQuickRole() {
     const role   = document.getElementById('quickRoleValue').value;
     const statut = document.getElementById('quickStatutValue').value;
 
-    const r = await fetch(`/api/v1/users/${id}`, {
-        method:  'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN, Accept: 'application/json' },
-        body:    JSON.stringify({ role, statut })
+    const r = await apiFetch(`/api/v1/users/${id}`, {
+        method: 'PUT',
+        body:   JSON.stringify({ role, statut })
     });
     const d = await r.json();
 
@@ -496,10 +495,9 @@ async function saveUser() {
     const url    = id ? `/api/v1/users/${id}` : '/api/v1/users';
 
     try {
-        const r = await fetch(url, {
+        const r = await apiFetch(url, {
             method,
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN, Accept: 'application/json' },
-            body:    JSON.stringify(payload)
+            body: JSON.stringify(payload)
         });
         const d = await r.json();
 
@@ -541,26 +539,6 @@ function closeUserModal() {
 
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// ── Confirmation suppression (global) ──
-window.confirmDelete = async function(url, label) {
-    if (!confirm(`Supprimer « ${label} » ? Cette action est irréversible.`)) return;
-    try {
-        const r = await fetch(url, {
-            method:  'DELETE',
-            headers: { 'X-CSRF-TOKEN': CSRF_TOKEN, Accept: 'application/json' }
-        });
-        if (r.ok) {
-            showToast(`« ${label} » supprimé`);
-            loadUsers(currentPage);
-        } else {
-            const d = await r.json();
-            showToast(d.message || 'Erreur lors de la suppression', 'error');
-        }
-    } catch {
-        showToast('Erreur réseau', 'error');
-    }
-};
 
 // Init
 loadUsers(1);
