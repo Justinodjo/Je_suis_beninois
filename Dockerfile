@@ -44,7 +44,6 @@ COPY . .
 
 # Installer les dépendances PHP
 RUN composer install \
-    --no-dev \
     --optimize-autoloader \
     --no-interaction
 
