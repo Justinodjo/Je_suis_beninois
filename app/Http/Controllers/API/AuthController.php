@@ -10,6 +10,7 @@ class AuthController extends Controller
 {
     /**
      * Connexion utilisateur avec JWT
+     * correction de API
      */
     public function login(Request $request)
     {
