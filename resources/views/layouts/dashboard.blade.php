@@ -14,7 +14,8 @@
         referrerpolicy="no-referrer"
     >
 
-    @vite(['resources/css/dashboard.css'])
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <script src="{{ asset('js/dashboard.js') }}" defer></script>
 
     @stack('styles')
 </head>
