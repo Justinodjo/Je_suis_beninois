@@ -29,7 +29,9 @@ use App\Http\Controllers\Web\InteractionController;
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
 
-
+Route::get('/actualites', [HomeController::class, 'actualites'])
+    ->name('actualites');
+    
 // Pages Culture & Patrimoine
 Route::prefix('culture')
     ->name('culture.')
