@@ -51,7 +51,7 @@ class Media extends Model
     }
 
 
-    public function getThumbnailUrlAttribute()
+    public function getUrlThumbnailAttribute()
     {
         $value = $this->attributes['url_thumbnail'] ?? null;
         
