@@ -1,3 +1,4 @@
+```php
 <?php
 
 namespace Database\Seeders;
@@ -14,100 +15,120 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 🔐 Admin par défaut
-       $admin = User::updateOrCreate(
-    ['email' => 'admin@example.com'],
-    [
-        'name' => 'Administrateur',
-        'password' => Hash::make('password123'),
-        'role' => 'admin',
-        'statut' => 'actif',
-        'avatar' => null,
-        'bio' => 'Administrateur principal du site',
-        'date_inscription' => now(),
-    ]
-);
+        /*
+        |--------------------------------------------------------------------------
+        | Vérification
+        |--------------------------------------------------------------------------
+        |
+        | Si la base contient déjà des utilisateurs, on considère
+        | qu'elle a déjà été initialisée.
+        |
+        */
 
-    // ✍️ Contributeur
-        $contributeur = User::updateOrCreate(
-            ['email' => 'contributeur@example.com'],
-            [
-                'name' => 'Contributeur',
-                'password' => Hash::make('password123'),
-                'role' => 'contributeur',
-                'statut' => 'actif',
-                'avatar' => null,
-                'bio' => 'Contributeur du site',
-                'date_inscription' => now(),
-            ]
-        );
+        if (User::count() > 0) {
+            $this->command->info('La base contient déjà des données. Seed ignoré.');
+            return;
+        }
 
-        // 👤 Visiteur
-        $visiteur = User::updateOrCreate(
-            ['email' => 'visiteur@example.com'],
-            [
-                'name' => 'Visiteur',
-                'password' => Hash::make('password123'),
-                'role' => 'visiteur',
-                'statut' => 'actif',
-                'avatar' => null,
-                'bio' => 'Utilisateur visiteur du site',
-                'date_inscription' => now(),
-            ]
-        );
+        $this->command->info('Création des données fictives...');
 
-        // 👥 Autres utilisateurs
+        /*
+        |--------------------------------------------------------------------------
+        | Administrateur
+        |--------------------------------------------------------------------------
+        */
+
+        $admin = User::create([
+            'name' => 'Administrateur',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'statut' => 'actif',
+            'avatar' => null,
+            'bio' => 'Administrateur principal du site',
+            'date_inscription' => now(),
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Utilisateurs
+        |--------------------------------------------------------------------------
+        */
+
         $users = User::factory(9)->create();
-        $users->push($admin);
-        $users->push($contributeur);
-        $users->push($visiteur);
 
-        // 📂 Catégories
+        $users->push($admin);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Catégories
+        |--------------------------------------------------------------------------
+        */
+
         $categories = Category::factory(5)->create();
 
-        // 🏷️ Tags
+        /*
+        |--------------------------------------------------------------------------
+        | Tags
+        |--------------------------------------------------------------------------
+        */
+
         $tags = Tag::factory(10)->create();
 
-        // 🖼️ Médias
+        /*
+        |--------------------------------------------------------------------------
+        | Médias
+        |--------------------------------------------------------------------------
+        */
+
         $media = Media::factory(20)->create();
 
-        // 📝 Articles
-        Article::factory(15)->create()->each(function ($article) use ($categories, $tags, $media, $users) {
+        /*
+        |--------------------------------------------------------------------------
+        | Articles
+        |--------------------------------------------------------------------------
+        */
 
-            // Assigner auteur aléatoire
+        $articles = Article::factory(15)->create();
+
+        $articles->each(function ($article) use (
+            $categories,
+            $tags,
+            $media,
+            $users
+        ) {
+
+            // Auteur aléatoire
             $article->update([
-                'user_id' => $users->random()->id
+                'user_id' => $users->random()->id,
             ]);
 
-            // Attacher catégories
+            // Catégories
             $article->categories()->attach(
-                $categories->random(rand(1, 3))->pluck('id')->toArray()
+                $categories
+                    ->random(rand(1, 3))
+                    ->pluck('id')
+                    ->toArray()
             );
 
-            // Attacher tags
+            // Tags
             $article->tags()->attach(
-                $tags->random(rand(2, 5))->pluck('id')->toArray()
+                $tags
+                    ->random(rand(2, 5))
+                    ->pluck('id')
+                    ->toArray()
             );
 
-            // ✅ Relation correcte (media et non medias)
-            $article->medias()->attach($media->random(rand(1,3))->pluck('id')->toArray());
-
+            // Médias
+            $article->medias()->attach(
+                $media
+                    ->random(rand(1, 3))
+                    ->pluck('id')
+                    ->toArray()
+            );
         });
 
-
-          // ℹ️ Informations
-        $this->command->info('Seed terminé avec succès.');
-        $this->command->info('');
-        $this->command->info('ADMIN');
-        $this->command->info('Email : admin@example.com');
-        $this->command->info('Mot de passe : password123');
-        $this->command->info('');
-        $this->command->info('CONTRIBUTEUR');
-        $this->command->info('Email : contributeur@example.com');
-        $this->command->info('Mot de passe : password123');
-        $this->command->info('');
-        $this->command->info('VISITEUR');
-        $this->command->info('Email : visiteur@example.com');
-        $this->command->info('Mot de passe : password123');
+        $this->command->info('Données fictives créées avec succès !');
     }
 }
+```
