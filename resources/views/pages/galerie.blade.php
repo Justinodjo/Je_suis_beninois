@@ -11,6 +11,12 @@
     // Split de la page courante par type — évite une requête supplémentaire
     $videos = $medias->getCollection()->where('type', 'video')->values();
     $images = $medias->getCollection()->where('type', 'image')->values();
+
+    $videosJson = $videos->map(fn($v) => [
+        'url'   => $v->url,
+        'thumb' => $v->url_thumbnail ?? $v->url,
+        'titre' => $v->titre ?? $v->nom ?? 'Vidéo',
+    ]);
 @endphp
 
 @push('styles')
@@ -239,11 +245,7 @@
         </div>
 
         @if($videos->isNotEmpty())
-        <div class="video-slider" id="videoSlider" data-videos='@json($videos->map(fn($v) => [
-            "url" => $v->url,
-            "thumb" => $v->url_thumbnail ?? $v->url,
-            "titre" => $v->titre ?? $v->nom ?? "Vidéo",
-        ]))'>
+        <div class="video-slider" id="videoSlider" data-videos='@json($videosJson)'>
             <div class="video-slider-main" id="videoMain" onclick="playCurrentVideo()">
                 <button class="video-slider-arrow prev" onclick="event.stopPropagation(); prevVideo()">
                     <i class="fa-solid fa-chevron-left"></i>
@@ -340,7 +342,6 @@ function renderVideoSlide() {
         el.classList.toggle('active', i === currentVideoIndex);
     });
 
-    // Centre la miniature active dans la bande
     const activeThumb = document.querySelectorAll('.video-slider-thumb')[currentVideoIndex];
     activeThumb?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
