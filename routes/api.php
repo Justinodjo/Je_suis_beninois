@@ -60,6 +60,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/articles/{article}', [ArticleController::class, 'destroy']);
 
             Route::post('/media', [MediaController::class, 'store']);
+            Route::post('/media/external', [MediaController::class, 'storeExternal']);
             Route::put('/media/{media}', [MediaController::class, 'update']);
             Route::delete('/media/{media}', [MediaController::class, 'destroy']);
         });

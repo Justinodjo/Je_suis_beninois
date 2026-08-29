@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('titre');
             $table->string('slug')->unique();
             $table->text('extrait')->nullable();
+            $table->string('meta_titre', 60)->nullable();
+            $table->string('meta_description', 160)->nullable();
             $table->longText('contenu');
 
             $table->foreignId('user_id')

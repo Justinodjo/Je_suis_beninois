@@ -142,6 +142,24 @@
     align-items: center;
     gap: 6px;
 }
+
+/* ── Ajout de lien externe (YouTube/Vimeo) ── */
+.external-video-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.external-video-row input {
+    flex: 1;
+}
+.external-video-error {
+    display: none;
+    color: #ef4444;
+    font-size: .78rem;
+    margin-bottom: 8px;
+    align-items: center;
+    gap: 6px;
+}
 </style>
 @endpush
 
@@ -162,6 +180,18 @@
     </div>
     <input type="file" id="mediaFile" multiple accept="image/png,image/jpeg,image/webp,video/mp4"
            style="display:none" onchange="handleFileSelection(this.files)">
+</div>
+
+{{-- ══ AJOUT LIEN VIDÉO EXTERNE (YouTube / Vimeo) ══ --}}
+<div class="external-video-row">
+    <input type="text" id="externalVideoUrl" class="d-input"
+           placeholder="Coller un lien YouTube ou Vimeo…">
+    <button class="btn-d primary" onclick="addExternalVideo()">
+        <i class="fa-brands fa-youtube"></i> Ajouter le lien
+    </button>
+</div>
+<div id="externalVideoError" class="external-video-error">
+    <i class="fa-solid fa-circle-exclamation"></i> <span></span>
 </div>
 
 {{-- ══ FICHIERS REJETÉS (validation) ══ --}}
@@ -495,6 +525,7 @@ function startUpload(item) {
             loadMedia(currentPage);
         } else {
             item.status = 'error';
+            console.error('Upload échoué:', xhr.status, xhr.responseText);
         }
         renderUploadQueue();
     };
@@ -542,10 +573,51 @@ _zone.addEventListener('drop',      e => {
     handleFileSelection(e.dataTransfer.files);
 });
 
+/*
+|--------------------------------------------------------------------------
+| AJOUT DE LIEN VIDÉO EXTERNE (YouTube / Vimeo)
+|--------------------------------------------------------------------------
+*/
+
+async function addExternalVideo() {
+    const input   = document.getElementById('externalVideoUrl');
+    const errBox  = document.getElementById('externalVideoError');
+    const errText = errBox.querySelector('span');
+    const url     = input.value.trim();
+
+    errBox.style.display = 'none';
+    if (!url) return;
+
+    try {
+        const r = await apiFetch('/api/v1/media/external', {
+            method: 'POST',
+            body: JSON.stringify({ url })
+        });
+        const d = await r.json();
+
+        if (!r.ok) {
+            errText.textContent = d.message || 'Lien vidéo non valide.';
+            errBox.style.display = 'flex';
+            return;
+        }
+
+        input.value = '';
+        showToast('Vidéo ajoutée ✓');
+        loadMedia(currentPage);
+    } catch {
+        errText.textContent = "Erreur réseau lors de l'ajout du lien.";
+        errBox.style.display = 'flex';
+    }
+}
+
+document.getElementById('externalVideoUrl').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addExternalVideo();
+});
+
 
 /*
 |--------------------------------------------------------------------------
-| CHARGEMENT / AFFICHAGE MÉDIATHÈQUE (inchangé)
+| CHARGEMENT / AFFICHAGE MÉDIATHÈQUE
 |--------------------------------------------------------------------------
 */
 
@@ -581,10 +653,12 @@ function renderGrid(medias) {
                  onmouseout="this.querySelector('.m-overlay').style.opacity='0'">
 
                 ${m.type === 'video'
-                    ? `<div style="width:100%;height:100%;background:var(--bg-c2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
-                           <i class="fa-solid fa-video" style="font-size:2rem;color:var(--text-d);"></i>
-                           <span style="font-size:.65rem;color:var(--text-d);">${(m.nom||'Vidéo').substring(0,20)}</span>
-                       </div>`
+                    ? (m.url_thumbnail
+                        ? `<img src="${m.url_thumbnail}" alt="${m.nom||'Vidéo'}" style="width:100%;height:100%;object-fit:cover;">`
+                        : `<div style="width:100%;height:100%;background:var(--bg-c2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
+                               <i class="fa-solid fa-video" style="font-size:2rem;color:var(--text-d);"></i>
+                               <span style="font-size:.65rem;color:var(--text-d);">${(m.nom||'Vidéo').substring(0,20)}</span>
+                           </div>`)
                     : `<img src="${m.url_thumbnail||m.url}"
                             alt="${m.nom||'Média'}"
                             style="width:100%;height:100%;object-fit:cover;"
@@ -617,7 +691,7 @@ function renderGrid(medias) {
 
                 ${m.type === 'video'
                     ? `<span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:4px;">
-                           <i class="fa-solid fa-video"></i> Vidéo
+                           <i class="fa-solid fa-video"></i> ${m.mime_type === 'video/external' ? 'Lien' : 'Vidéo'}
                        </span>`
                     : ''}
             </div>
@@ -639,9 +713,11 @@ function renderList(medias) {
                                 class="td-thumb"
                                 alt="${m.nom||''}"
                                 onerror="this.style.display='none'">`
-                        : `<div class="td-thumb" style="display:flex;align-items:center;justify-content:center;background:var(--bg-c2);">
-                               <i class="fa-solid fa-video" style="color:var(--text-d);"></i>
-                           </div>`
+                        : (m.url_thumbnail
+                            ? `<img src="${m.url_thumbnail}" class="td-thumb" alt="${m.nom||''}">`
+                            : `<div class="td-thumb" style="display:flex;align-items:center;justify-content:center;background:var(--bg-c2);">
+                                   <i class="fa-solid fa-video" style="color:var(--text-d);"></i>
+                               </div>`)
                     }
                     <div>
                         <div class="td-name">${m.nom||'Sans nom'}</div>
@@ -705,16 +781,24 @@ function openMediaDetail(m) {
         `<i class="fa-solid fa-photo-film" style="color:var(--dy);margin-right:8px;"></i>${m.nom||'Détails'}`;
     document.getElementById('media-nom').value         = m.nom || '';
     document.getElementById('media-url-display').value = m.url || '';
-    document.getElementById('media-type-info').textContent  = m.type || '—';
+    document.getElementById('media-type-info').textContent  = m.mime_type === 'video/external' ? (m.type || '—') + ' (lien externe)' : (m.type || '—');
     document.getElementById('media-dims').textContent       = m.largeur && m.hauteur ? m.largeur + '×' + m.hauteur + ' px' : '—';
-    document.getElementById('media-size').textContent       = m.poids ? (m.poids / 1024).toFixed(0) + ' KB' : '—';
+    document.getElementById('media-size').textContent       = m.taille ? (m.taille / 1024).toFixed(0) + ' KB' : '—';
     document.getElementById('media-date').textContent       = m.created_at ? new Date(m.created_at).toLocaleDateString('fr') : '—';
 
     const preview = document.getElementById('mediaPreviewWrap');
     if (m.type === 'video') {
-        preview.innerHTML = `<video controls style="width:100%;height:100%;border-radius:8px;">
-            <source src="${m.url}">
-        </video>`;
+        if (m.mime_type === 'video/external') {
+            preview.innerHTML = m.url_thumbnail
+                ? `<img src="${m.url_thumbnail}" alt="${m.nom||''}" style="width:100%;height:100%;object-fit:cover;">`
+                : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+                       <i class="fa-solid fa-video" style="font-size:2.5rem;color:rgba(255,255,255,.15);"></i>
+                   </div>`;
+        } else {
+            preview.innerHTML = `<video controls style="width:100%;height:100%;border-radius:8px;">
+                <source src="${m.url}">
+            </video>`;
+        }
     } else {
         preview.innerHTML = `<img src="${m.url}"
             alt="${m.nom||''}"

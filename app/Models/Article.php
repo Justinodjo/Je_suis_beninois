@@ -14,6 +14,8 @@ class Article extends Model
         'titre',
         'slug',
         'extrait',
+        'meta_titre',
+        'meta_description',
         'contenu',
         'user_id',
         'statut',

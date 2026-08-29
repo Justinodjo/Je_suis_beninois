@@ -139,7 +139,7 @@
                     </div>
                 </div>
                 <input type="file" id="fileInput" accept="image/*" style="display:none"
-                       multiple onchange="handleUpload(this.files)">
+                    multiple onchange="handleUpload(this.files)">
 
                 <div id="uploadProgress" style="display:none;margin-top:12px;">
                     <div class="f-label">
@@ -149,6 +149,16 @@
                         <div class="prog-fill" id="uploadBar" style="width:0%;background:var(--dv-l);"></div>
                     </div>
                 </div>
+
+                {{-- Lien vidéo externe --}}
+                <div style="display:flex;gap:8px;margin-top:14px;">
+                    <input type="text" id="modalExternalVideoUrl" class="f-control"
+                        placeholder="Coller un lien YouTube ou Vimeo…" style="flex:1;">
+                    <button type="button" class="btn-d outline" onclick="addModalExternalVideo()">
+                        <i class="fa-brands fa-youtube"></i> Ajouter
+                    </button>
+                </div>
+                <div id="modalExternalVideoError" style="display:none;color:#ef4444;font-size:.78rem;margin-top:6px;"></div>
 
                 {{-- Médias existants --}}
                 <div style="margin-top:20px;">
@@ -193,10 +203,7 @@
                         <div style="color:var(--text-m);font-size:.78rem;" id="seo-preview-desc">Description de l'article…</div>
                     </div>
                 </div>
-                <div class="f-hint" style="margin-top:-6px;">
-                    <i class="fa-solid fa-circle-info" style="margin-right:4px;"></i>
-                    Ces champs sont indicatifs : ils ne sont pas encore enregistrés en base (colonnes non présentes sur la table <code>articles</code>).
-                </div>
+                
             </div>
 
         </div>{{-- /modal-body --}}
@@ -232,6 +239,36 @@ function updateSlugPreview(titre) {
     document.getElementById('slug-preview').textContent = slug ? '/culture/article/'+slug+'-xxxxx' : '';
     document.getElementById('seo-preview-title').textContent = titre || 'Titre de l\'article…';
 }
+
+async function addModalExternalVideo() {
+    const input  = document.getElementById('modalExternalVideoUrl');
+    const errBox = document.getElementById('modalExternalVideoError');
+    const url    = input.value.trim();
+    errBox.style.display = 'none';
+    if (!url) return;
+
+    try {
+        const r = await apiFetch('/api/v1/media/external', {
+            method: 'POST',
+            body: JSON.stringify({ url })
+        });
+        const d = await r.json();
+
+        if (!r.ok) {
+            errBox.textContent = d.message || 'Lien vidéo non valide.';
+            errBox.style.display = 'block';
+            return;
+        }
+
+        input.value = '';
+        showToast('Vidéo ajoutée ✓');
+        loadMediaPicker();
+    } catch {
+        errBox.textContent = "Erreur réseau lors de l'ajout du lien.";
+        errBox.style.display = 'block';
+    }
+}
+
 
 // ✅ JWT uniquement — apiFetch
 async function loadModalFilters() {
@@ -269,9 +306,11 @@ async function loadMediaPicker() {
         grid.innerHTML = medias.length ? medias.map(m=>`
             <div class="m-item" onclick="toggleMedia(this,${m.id})" data-media-id="${m.id}">
                 ${m.type === 'video'
-                    ? `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-c2);">
-                           <i class="fa-solid fa-video" style="font-size:1.5rem;color:var(--text-d);"></i>
-                       </div>`
+                    ? (m.url_thumbnail
+                        ? `<img src="${m.url_thumbnail}" alt="${m.nom||'Vidéo'}">`
+                        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-c2);">
+                               <i class="fa-solid fa-video" style="font-size:1.5rem;color:var(--text-d);"></i>
+                           </div>`)
                     : `<img src="${m.url}" alt="${m.nom||'Média'}"
                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:var(--bg-c2);">
@@ -335,8 +374,6 @@ if (_zone) {
     _zone.addEventListener('drop',      e => { e.preventDefault(); _zone.classList.remove('drag'); handleUpload(e.dataTransfer.files); });
 }
 
-// ✅ JWT uniquement — apiFetch, plus de X-CSRF-TOKEN / Laravel.csrfToken
-// ⚠️ meta_titre / meta_description ne sont PAS envoyés : colonnes absentes de la table articles
 async function saveArticle(statutOverride) {
     const errEl   = document.getElementById('modalError');
     errEl.style.display = 'none';
@@ -358,6 +395,8 @@ async function saveArticle(statutOverride) {
         extrait:    document.getElementById('art-extrait').value.trim() || null,
         type:       document.getElementById('art-type').value,
         statut:     statutOverride || document.getElementById('art-statut').value,
+        meta_titre:        document.getElementById('art-meta-titre').value.trim() || null,
+        meta_description:  document.getElementById('art-meta-desc').value.trim() || null,
         categories: cats,
         tags,
         medias:     mediaIds,

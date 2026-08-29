@@ -46,9 +46,20 @@ class MediaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fichier' => 'required|file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,avi|max:10240',
-            'nom'     => 'nullable|string|max:255',
-            'type'    => 'nullable|in:image,video',
+            'fichier' => [
+                'required',
+                'file',
+                'max:10240',
+                function ($attribute, $value, $fail) {
+                    $ext = strtolower($value->getClientOriginalExtension());
+                    $allowed = ['jpeg','png','jpg','gif','webp','mp4','mov','avi'];
+                    if (! in_array($ext, $allowed)) {
+                        $fail('Format de fichier non autorisé.');
+                    }
+                },
+            ],
+            'nom'  => 'nullable|string|max:255',
+            'type' => 'nullable|in:image,video',
         ]);
 
         $file     = $request->file('fichier');
@@ -116,27 +127,28 @@ class MediaController extends Controller
     /**
      * ✅ destroy() — supprime le fichier physique ET la miniature
      */
-    public function destroy(Media $media)
-    {
-        // Supprimer le fichier original
+   public function destroy(Media $media)
+{
+    // Uniquement si un fichier a réellement été stocké localement (pas une vidéo externe)
+    if ($media->mime_type !== 'video/external') {
         if ($media->chemin && Storage::disk('public')->exists($media->chemin)) {
             Storage::disk('public')->delete($media->chemin);
-        } elseif ($media->url) {
-            // Fallback : extraire le chemin depuis l'URL
+        } elseif ($media->url && ! str_starts_with($media->url, 'http')) {
             $path = ltrim(str_replace('/storage', '', $media->url), '/');
             Storage::disk('public')->delete($path);
         }
 
-        // Supprimer la miniature si elle existe
-        if ($media->url_thumbnail) {
-            $thumbPath = ltrim(str_replace('/storage', '', $media->url_thumbnail), '/');
-            Storage::disk('public')->delete($thumbPath);
+        // Miniature locale uniquement
+        $rawThumb = $media->getRawOriginal('url_thumbnail');
+        if ($rawThumb && ! str_starts_with($rawThumb, 'http')) {
+            Storage::disk('public')->delete($rawThumb);
         }
-
-        $media->delete();
-
-        return response()->json(['message' => 'Média supprimé']);
     }
+
+    $media->delete();
+
+    return response()->json(['message' => 'Média supprimé']);
+}
 
     /**
      * ✅ Créer une miniature 300×300 sans dépendance externe (GD natif PHP)
@@ -210,4 +222,61 @@ class MediaController extends Controller
             return null;
         }
     }
+
+
+    public function storeExternal(Request $request)
+{
+    $request->validate([
+        'url' => ['required', 'url'],
+        'nom' => ['nullable', 'string', 'max:255'],
+    ]);
+
+    [$provider, $videoId] = $this->parseVideoUrl($request->input('url'));
+
+    if (! $provider) {
+        return response()->json([
+            'message' => 'Lien non reconnu. Formats supportés : YouTube, Vimeo.',
+        ], 422);
+    }
+
+    $thumbnail = match ($provider) {
+        'youtube' => "https://img.youtube.com/vi/{$videoId}/hqdefault.jpg",
+        'vimeo'   => $this->fetchVimeoThumbnail($videoId),
+        default   => null,
+    };
+
+    $media = Media::create([
+        'nom'           => $request->input('nom', 'Vidéo ' . ucfirst($provider)),
+        'type'          => 'video',
+        'url'           => $request->input('url'),
+        'url_thumbnail' => $thumbnail,
+        'chemin'        => null,              // pas de fichier local
+        'mime_type'     => 'video/external',  // marqueur pour la suppression
+        'user_id'       => auth()->id(),
+    ]);
+
+    return response()->json(['data' => $media], 201);
+}
+
+private function parseVideoUrl(string $url): array
+{
+    if (preg_match('#(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([A-Za-z0-9_-]{11})#', $url, $m)) {
+        return ['youtube', $m[1]];
+    }
+    if (preg_match('#vimeo\.com/(\d+)#', $url, $m)) {
+        return ['vimeo', $m[1]];
+    }
+    return [null, null];
+}
+
+private function fetchVimeoThumbnail(string $videoId): ?string
+{
+    try {
+        $r = \Illuminate\Support\Facades\Http::timeout(4)
+            ->get("https://vimeo.com/api/v2/video/{$videoId}.json");
+        return $r->successful() ? ($r->json()[0]['thumbnail_large'] ?? null) : null;
+    } catch (\Throwable) {
+        return null;
+    }
+}
 }
