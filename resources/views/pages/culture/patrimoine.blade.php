@@ -169,6 +169,16 @@
 }
 .patrimoine-card-stats i { margin-right: 4px; }
 
+.patrimoine-empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-l);
+    background: #fff;
+    border-radius: 12px;
+}
+.patrimoine-empty i { font-size: 2.4rem; color: var(--border); margin-bottom: 12px; display: block; }
+
 /* ══════════ CTA BAS — "En avant notre culture" (Image 3) ══════════ */
 .patrimoine-cta {
     position: relative;
@@ -256,105 +266,104 @@
             <a href="{{ route('culture.index') }}" class="section-link">Tout voir →</a>
         </div>
 
-        {{-- 2 GRANDES CARTES (Image 3 haut) --}}
-        <div class="patrimoine-grid-2">
-            @php
-                $allItems = $patrimoines->count() > 0 ? $patrimoines : collect([]);
-                $fallbacks = [
-                    ['titre'=>'Les Palais Royaux d\'Abomey, Patrimoine mondial de l\'UNESCO','extrait'=>'Les palais royaux d\'Abomey témoignent de la grandeur du royaume du Dahomey entre le XVIIe et le XIXe siècle.','url'=>'https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?w=700&q=80','cat'=>'Patrimoine UNESCO'],
-                    ['titre'=>'Participation active à la défense de notre culture et traditions','extrait'=>'La culture béninoise est un patrimoine vivant transmis de génération en génération dans nos cérémonies et fêtes.','url'=>'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=700&q=80','cat'=>'Traditions Vivantes'],
-                ];
-            @endphp
+        @php
+            $items      = $patrimoines->take(5)->values();
+            $bigItems   = $items->slice(0, 2);
+            $smallItems = $items->slice(2, 3)->values();
+        @endphp
 
-            @foreach([0,1] as $idx)
-            @php
-                $item = $allItems->get($idx);
-                $fb   = $fallbacks[$idx] ?? $fallbacks[0];
-            @endphp
+        @if($items->isEmpty())
+            <div class="patrimoine-empty">
+                <i class="fa-solid fa-landmark"></i>
+                <p>Aucun contenu patrimoine disponible pour le moment.</p>
+            </div>
+        @else
+
+        {{-- 2 GRANDES CARTES (Image 3 haut) --}}
+        @if($bigItems->isNotEmpty())
+        <div class="patrimoine-grid-2">
+            @foreach($bigItems as $item)
             <article class="patrimoine-card">
                 <div class="patrimoine-card-img tall">
-                    <a href="{{ $item ? route('culture.article', $item->slug) : '#' }}">
-                        <img src="{{ $item?->medias->first()?->url ?? $fb['url'] }}"
-                             alt="{{ $item?->titre ?? $fb['titre'] }}">
+                    <a href="{{ route('culture.article', $item->slug) }}">
+                        <img src="{{ $item->medias->first()?->url ?? 'https://placehold.co/700x400/1B5E20/FFD700?text=Patrimoine' }}"
+                             alt="{{ $item->titre }}">
                     </a>
+                    @if($item->categories->first())
                     <div class="patrimoine-card-badge">
-                        <span class="badge badge-vert">{{ $fb['cat'] }}</span>
+                        <span class="badge badge-vert">{{ $item->categories->first()->nom }}</span>
                     </div>
+                    @endif
                 </div>
                 <div class="patrimoine-card-body">
                     <div class="patrimoine-card-meta">
-                        <span class="patrimoine-card-cat">{{ $fb['cat'] }}</span>
-                        <span class="patrimoine-card-time">{{ $item?->created_at?->diffForHumans() ?? 'Il y a 3 jours' }}</span>
+                        <span class="patrimoine-card-cat">{{ $item->categories->first()?->nom ?? 'Patrimoine' }}</span>
+                        <span class="patrimoine-card-time">{{ $item->created_at?->diffForHumans() }}</span>
                     </div>
                     <h3 class="patrimoine-card-title">
-                        <a href="{{ $item ? route('culture.article', $item->slug) : '#' }}">
-                            {{ $item?->titre ?? $fb['titre'] }}
+                        <a href="{{ route('culture.article', $item->slug) }}">
+                            {{ $item->titre }}
                         </a>
                     </h3>
                     <p class="patrimoine-card-excerpt">
-                        {{ Str::limit($item?->extrait ?? $fb['extrait'], 140) }}
+                        {{ Str::limit($item->extrait ?? strip_tags($item->contenu), 140) }}
                     </p>
                     <div class="patrimoine-card-footer">
-                        <a href="{{ $item ? route('culture.article', $item->slug) : '#' }}" class="patrimoine-card-link">
+                        <a href="{{ route('culture.article', $item->slug) }}" class="patrimoine-card-link">
                             Lire l'article →
                         </a>
                         <div class="patrimoine-card-stats">
-                            <span><i class="fa-regular fa-eye"></i>{{ number_format($item?->nb_vues ?? rand(100,800)) }}</span>
-                            <span><i class="fa-solid fa-heart"></i>{{ $item?->nb_likes ?? rand(20,150) }}</span>
+                            <span><i class="fa-regular fa-eye"></i>{{ number_format($item->nb_vues ?? 0) }}</span>
+                            <span><i class="fa-solid fa-heart"></i>{{ number_format($item->nb_likes ?? 0) }}</span>
                         </div>
                     </div>
                 </div>
             </article>
             @endforeach
         </div>
+        @endif
 
         {{-- 3 PETITES CARTES (Image 3 bas) --}}
-        @php
-            $smallFallbacks = [
-                ['titre'=>'S\'affirme en faisant la connexion du Bénin moderne avec ses racines','cat'=>'Société','url'=>'https://images.unsplash.com/photo-1580130732478-4e339fb33746?w=400&q=80'],
-                ['titre'=>'Comment la danse Zouglou promeut l\'identité culturelle au quotidien','cat'=>'Culture','url'=>'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80'],
-                ['titre'=>'Saison Creative de tout Dakar jusqu\'au nouveau Bénin culturel','cat'=>'Arts','url'=>'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=400&q=80'],
-            ];
-        @endphp
+        @if($smallItems->isNotEmpty())
         <div class="patrimoine-grid-3">
-            @foreach([2,3,4] as $idx)
-            @php
-                $item = $allItems->get($idx);
-                $fb   = $smallFallbacks[$idx - 2] ?? $smallFallbacks[0];
-            @endphp
+            @foreach($smallItems as $item)
             <article class="patrimoine-card">
                 <div class="patrimoine-card-img medium">
-                    <a href="{{ $item ? route('culture.article', $item->slug) : '#' }}">
-                        <img src="{{ $item?->medias->first()?->url ?? $fb['url'] }}"
-                             alt="{{ $item?->titre ?? $fb['titre'] }}">
+                    <a href="{{ route('culture.article', $item->slug) }}">
+                        <img src="{{ $item->medias->first()?->url ?? 'https://placehold.co/400x260/1B5E20/FFD700?text=Patrimoine' }}"
+                             alt="{{ $item->titre }}">
                     </a>
+                    @if($item->categories->first())
                     <div class="patrimoine-card-badge">
-                        <span class="badge badge-jaune" style="color:#1a1a1a;">{{ $fb['cat'] }}</span>
+                        <span class="badge badge-jaune" style="color:#1a1a1a;">{{ $item->categories->first()->nom }}</span>
                     </div>
+                    @endif
                 </div>
                 <div class="patrimoine-card-body">
                     <div class="patrimoine-card-meta">
-                        <span class="patrimoine-card-cat">{{ $fb['cat'] }}</span>
-                        <span class="patrimoine-card-time">{{ $item?->created_at?->diffForHumans() ?? 'Il y a 1 semaine' }}</span>
+                        <span class="patrimoine-card-cat">{{ $item->categories->first()?->nom ?? 'Culture' }}</span>
+                        <span class="patrimoine-card-time">{{ $item->created_at?->diffForHumans() }}</span>
                     </div>
                     <h3 class="patrimoine-card-title">
-                        <a href="{{ $item ? route('culture.article', $item->slug) : '#' }}">
-                            {{ Str::limit($item?->titre ?? $fb['titre'], 75) }}
+                        <a href="{{ route('culture.article', $item->slug) }}">
+                            {{ Str::limit($item->titre, 75) }}
                         </a>
                     </h3>
                     <div class="patrimoine-card-footer">
-                        <a href="{{ $item ? route('culture.article', $item->slug) : '#' }}" class="patrimoine-card-link">
+                        <a href="{{ route('culture.article', $item->slug) }}" class="patrimoine-card-link">
                             Lire →
                         </a>
                         <div class="patrimoine-card-stats">
-                            <span><i class="fa-solid fa-heart"></i>{{ $item?->nb_likes ?? rand(10,80) }}</span>
+                            <span><i class="fa-solid fa-heart"></i>{{ number_format($item->nb_likes ?? 0) }}</span>
                         </div>
                     </div>
                 </div>
             </article>
             @endforeach
         </div>
+        @endif
 
+        @endif
     </div>
 </section>
 
