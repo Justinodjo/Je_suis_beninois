@@ -276,7 +276,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
      <!-- @vite(['resources/css/app.css']) -->
 
-    @stack('styles')
+    
 </head>
 <body>
 
@@ -379,7 +379,7 @@
     </script>
 @endif
 
-
+@stack('styles')
 <script>
 function toggleAuthSection() {
     const login = document.getElementById('loginSection');
