@@ -283,150 +283,14 @@
 <!-- Pattern décoratif top -->
 <div class="pattern-strip"></div>
 
-<!-- ═══ HEADER ═══ -->
-<header class="site-header">
-    <div class="container">
-        <div class="header-inner">
-
-            <a href="{{ route('home') }}" class="navbar-brand">
-             <div class="logo-flag">
-    <img src="{{ asset('images/logo.jpeg') }}"
-         alt="Je Suis Béninois"
-         class="site-logo">
-         </div>
-</a>
-
-            {{-- Overlay mobile --}}
-            <div class="nav-mobile-overlay" id="navMobileOverlay" onclick="closeMobileNav()"></div>
-
-            <nav class="main-nav" id="mainNav">
-                <button class="btn-icon nav-mobile-close" onclick="closeMobileNav()" style="align-self:flex-end;margin-bottom:12px;">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Accueil</a>
-                <a href="{{ route('actualites') }}" class="{{ request()->routeIs('actualites') ? 'active' : '' }}">Actualités</a>
-                <a href="{{ route('culture.index') }}" class="{{ request()->routeIs('culture.index') ? 'active' : '' }}">Culture</a>
-                <a href="{{ route('culture.patrimoine') }}" class="{{ request()->routeIs('culture.patrimoine') ? 'active' : '' }}">Histoire</a>
-                <a href="#galerie">Galerie</a>
-                <a href="{{ route('interviews.index') }}" class="{{ request()->routeIs('interviews.*') ? 'active' : '' }}">Interviews</a>
-                <a href="#contact">Contact</a>
-            </nav>
-
-            <div class="header-actions">
-
-    <a href="#" class="btn-icon">
-        <svg viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-        </svg>
-    </a>
-
-    @auth
-
-        <a
-            href="{{ route('dashboard.index') }}"
-            class="btn btn-primary"
-            style="font-size:.82rem;padding:8px 18px;"
-        >
-            <i class="fa-solid fa-gauge-high"></i>
-            Dashboard
-        </a>
-
-    @else
-
-        <a
-            href="{{ route('login') }}"
-            class="btn btn-login"
-        >
-            Se connecter
-        </a>
-
-        <a
-            href="{{ route('register') }}"
-            class="btn btn-secondary"
-        >
-            S'inscrire
-        </a>
-
-    @endauth
-
-    <button class="nav-burger" onclick="openMobileNav()">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-
-</div>
-        </div>
-    </div>
-</header>
+@include('layouts.partials.header')
 
 <!-- ═══ CONTENU ═══ -->
 <main>
     @yield('content')
 </main>
 
-<!-- ═══ FOOTER ═══ -->
-<footer class="site-footer">
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <div class="logo">
-                    <div class="logo-flag" style="height:40px;width:28px;">
-                        <div class="f-v"></div><div class="f-y"></div><div class="f-r"></div>
-                    </div>
-                    <div class="logo-text">JE SUIS BÉNINOIS<span>Fierté & Culture</span></div>
-                </div>
-                <p>Portail d'information et de promotion de la culture, de l'histoire et des traditions du Bénin.</p>
-               <div class="footer-socials">
-    <a class="footer-social" href="#" aria-label="Facebook">
-        <i class="fa-brands fa-facebook-f"></i>
-    </a>
-
-    <a class="footer-social" href="#" aria-label="X (Twitter)">
-        <i class="fa-brands fa-x-twitter"></i>
-    </a>
-
-    <a class="footer-social" href="#" aria-label="YouTube">
-        <i class="fa-brands fa-youtube"></i>
-    </a>
-
-    <a class="footer-social" href="#" aria-label="Instagram">
-        <i class="fa-brands fa-instagram"></i>
-    </a>
-</div>
-            </div>
-            <div class="footer-col">
-                <h4>Pages</h4>
-                <a href="{{ route('home') }}">Accueil</a>
-                <a href="{{ route('culture.index') }}">Culture</a>
-                <a href="{{ route('culture.traditions') }}">Traditions</a>
-                <a href="{{ route('culture.patrimoine') }}">Patrimoine</a>
-            </div>
-            <div class="footer-col">
-                <h4>Interviews</h4>
-                <a href="{{ route('interviews.index') }}">Toutes les interviews</a>
-                <a href="#">Entrepreneurs</a>
-                <a href="#">Artistes</a>
-                <a href="#">Sportifs</a>
-            </div>
-            <div class="footer-col">
-                <h4>Le monde</h4>
-                <a href="#">Diaspora</a>
-                <a href="#">International</a>
-                <a href="#">Partenaires</a>
-            </div>
-            <div class="footer-col">
-                <h4>Rejoindre</h4>
-                <a href="#">Devenir contributeur</a>
-                <a href="#">Financer</a>
-                <a href="#">Contact</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <span>© {{ date('Y') }} Je Suis Béninois. Tous droits réservés.</span>
-            <span>Fait avec fierté</span>
-        </div>
-    </div>
-</footer>
+@include('layouts.partials.footer')
 
 <!-- ═══ MODAL AUTH ═══ -->
 <div id="authModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
@@ -615,17 +479,6 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
         errorDiv.textContent   = 'Erreur de connexion';
     }
 });
-
-// ── MENU MOBILE ──
-function openMobileNav() {
-    document.getElementById('mainNav').classList.add('open');
-    document.getElementById('navMobileOverlay').classList.add('show');
-}
-
-function closeMobileNav() {
-    document.getElementById('mainNav').classList.remove('open');
-    document.getElementById('navMobileOverlay').classList.remove('show');
-}
 </script>
 
 @stack('scripts')
