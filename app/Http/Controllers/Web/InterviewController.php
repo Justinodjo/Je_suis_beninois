@@ -10,13 +10,18 @@ class InterviewController extends Controller
     /**
      * ✅ index() ajouté (manquant dans votre code original)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $interviews = Article::with(['medias', 'categories', 'user'])
+        $query = Article::with(['medias', 'categories', 'user'])
             ->where('type', 'interview')
-            ->where('statut', 'publié') // ✅ CORRECTION : accent
-            ->latest()
-            ->paginate(12);
+            ->where('statut', 'publié');
+
+        if ($request->filled('category')) {
+            $categoryId = $request->query('category');
+            $query->whereHas('categories', fn ($q) => $q->where('categories.id', $categoryId));
+        }
+
+        $interviews = $query->latest()->paginate(12)->withQueryString();
 
         return view('pages.interviews.index', compact('interviews'));
     }

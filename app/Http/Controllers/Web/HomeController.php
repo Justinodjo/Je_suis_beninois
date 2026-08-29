@@ -75,9 +75,16 @@ class HomeController extends Controller
             });
         }
 
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('titre', 'like', "%{$search}%")
+                ->orWhere('extrait', 'like', "%{$search}%");
+            });
+        }
+
         $articles = $query->latest()->paginate(12)->withQueryString();
 
-        // Toutes les catégories, pour le filtre affiché dans la vue
         $categories = Category::withCount(['articles' => function($q) {
                 $q->where('statut', 'publié');
             }])

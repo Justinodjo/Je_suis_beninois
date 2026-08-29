@@ -7,6 +7,8 @@ use App\Http\Controllers\Web\CultureController;
 use App\Http\Controllers\Web\InterviewController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\InteractionController;
+use App\Http\Controllers\Web\MediaController;
+use App\Http\Controllers\Web\ContactController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +33,22 @@ Route::get('/', [HomeController::class, 'index'])
 
 Route::get('/actualites', [HomeController::class, 'actualites'])
     ->name('actualites');
-    
+
+// Galerie
+Route::get('/galerie', [MediaController::class, 'index'])
+    ->name('galerie');
+
+// Contact
+Route::get('/contact', [ContactController::class, 'index'])
+    ->name('contact');
+
+Route::post('/contact', [ContactController::class, 'store'])
+    ->name('contact.store');
+
+// Financer
+Route::view('/financer', 'pages.financer')
+    ->name('financer');
+
 // Pages Culture & Patrimoine
 Route::prefix('culture')
     ->name('culture.')

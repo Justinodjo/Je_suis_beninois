@@ -579,15 +579,23 @@ function checkMobile() {
     if (uneMobile) uneMobile.style.display = isMobile ? 'block' : 'none';
     if (mobileSidebar) mobileSidebar.style.display = isMobile ? 'block' : 'none';
 }
-checkMobile();
-window.addEventListener('resize', checkMobile);
 
-// Tabs mobile
-document.querySelectorAll('.mobile-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
+document.addEventListener('turbo:load', () => {
+    checkMobile();
+
+    // Tabs mobile — éléments recréés à chaque navigation, pas de risque de doublon
+    document.querySelectorAll('.mobile-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
     });
 });
+
+// Écouteur resize sur window : ajouté une seule fois, jamais dupliqué entre navigations
+if (!window.__meteoResizeBound) {
+    window.addEventListener('resize', checkMobile);
+    window.__meteoResizeBound = true;
+}
 </script>
 @endpush

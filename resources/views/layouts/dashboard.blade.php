@@ -15,6 +15,7 @@
     >
 
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <script src="{{ asset('js/turbo.min.js') }}"></script>
     <script src="{{ asset('js/dashboard.js') }}" defer></script>
 
     @stack('styles')
@@ -868,11 +869,10 @@ function closeSidebar() {
 */
 
 document.addEventListener(
-    'DOMContentLoaded',
+    'turbo:load',
     function () {
-
         checkAuthentication();
-
+        closeSidebar(); // referme la sidebar mobile si restée ouverte entre deux pages
     }
 );
 
