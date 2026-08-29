@@ -122,7 +122,7 @@
                 <div class="f-group">
                     <label class="f-label">Icône (emoji ou texte)</label>
                     <input type="text" id="cat-icone" class="f-control"
-                           placeholder="🎭 🏛️ 🥁 🎤 🌍">
+                           placeholder="Icône">
                 </div>
             </div>
 
