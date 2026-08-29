@@ -303,7 +303,8 @@
                 <button class="btn-icon nav-mobile-close" onclick="closeMobileNav()" style="align-self:flex-end;margin-bottom:12px;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Actualités</a>
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Accueil</a>
+                <a href="{{ route('actualites') }}" class="{{ request()->routeIs('actualites') ? 'active' : '' }}">Actualités</a>
                 <a href="{{ route('culture.index') }}" class="{{ request()->routeIs('culture.index') ? 'active' : '' }}">Culture</a>
                 <a href="{{ route('culture.patrimoine') }}" class="{{ request()->routeIs('culture.patrimoine') ? 'active' : '' }}">Histoire</a>
                 <a href="#galerie">Galerie</a>

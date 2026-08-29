@@ -9,10 +9,146 @@
 <span class="sep">/</span> <span>Médias</span>
 @endsection
 
+@push('styles')
+<style>
+/* ══════════ ZONE UPLOAD PRO ══════════ */
+.upload-zone.drag {
+    border-color: var(--dv-l);
+    background: rgba(56,142,60,.06);
+}
+.upload-zone {
+    transition: all .18s;
+}
+
+/* ── File d'attente d'upload ── */
+.upload-queue {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.upload-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-c);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    animation: uploadItemIn .25s ease;
+}
+@keyframes uploadItemIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.upload-item-thumb {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-c2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.upload-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.upload-item-thumb i { color: var(--text-d); font-size: 1.1rem; }
+
+.upload-item-info { flex: 1; min-width: 0; }
+.upload-item-name {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--text-m);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.upload-item-meta {
+    font-size: .7rem;
+    color: var(--text-d);
+    margin-top: 2px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.upload-item-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+.upload-item-bar-fill {
+    height: 100%;
+    background: var(--dv-l);
+    border-radius: 4px;
+    width: 0%;
+    transition: width .2s;
+}
+.upload-item.error .upload-item-bar-fill { background: #ef4444; }
+.upload-item.success .upload-item-bar-fill { background: var(--dv-l); width: 100% !important; }
+
+.upload-item-status {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.upload-item-pct {
+    font-size: .72rem;
+    font-family: var(--fm);
+    color: var(--text-d);
+    min-width: 34px;
+    text-align: right;
+}
+.upload-item-action {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: var(--text-d);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+}
+.upload-item-action:hover { background: var(--bg-c2); color: var(--text-m); }
+.upload-item.error .upload-item-action.retry { color: #fb923c; }
+.upload-item.success .upload-item-status i { color: var(--dv-l); }
+.upload-item.error .upload-item-status .status-icon { color: #ef4444; }
+
+.upload-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: .76rem;
+    color: var(--text-d);
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+.upload-summary a {
+    color: var(--dv-l);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.upload-reject {
+    font-size: .74rem;
+    color: #ef4444;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+</style>
+@endpush
+
 @section('content')
 
 {{-- ══ ZONE UPLOAD ══ --}}
-<div class="upload-zone" id="uploadZone" style="margin-bottom:20px;"
+<div class="upload-zone" id="uploadZone" style="margin-bottom:12px;"
      onclick="document.getElementById('mediaFile').click()">
     <div class="upload-icon">
         <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -21,23 +157,21 @@
         Glisser des fichiers ici ou cliquer pour choisir
     </div>
     <div style="font-size:.78rem;color:var(--text-d);">
-        <i class="fa-solid fa-image"></i> PNG, JPG, WebP &nbsp;·&nbsp;
-        <i class="fa-solid fa-video"></i> MP4 &nbsp;·&nbsp; Max 10 MB par fichier
+        <i class="fa-solid fa-image"></i> PNG, JPG, WebP (max 5 Mo) &nbsp;·&nbsp;
+        <i class="fa-solid fa-video"></i> MP4 (max 10 Mo)
     </div>
-    <input type="file" id="mediaFile" multiple accept="image/*,video/*"
-           style="display:none" onchange="uploadFiles(this.files)">
+    <input type="file" id="mediaFile" multiple accept="image/png,image/jpeg,image/webp,video/mp4"
+           style="display:none" onchange="handleFileSelection(this.files)">
 </div>
 
-<div id="uploadProgress" style="display:none;margin-bottom:16px;background:var(--bg-c);border:1px solid var(--border);border-radius:var(--r);padding:16px;">
-    <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:8px;">
-        <span id="uploadFileName" style="color:var(--text-m);">
-            <i class="fa-solid fa-spinner fa-spin"></i> Téléchargement…
-        </span>
-        <span id="uploadPct" style="color:var(--text-d);font-family:var(--fm);">0%</span>
-    </div>
-    <div class="prog-bar">
-        <div class="prog-fill" id="uploadBar" style="width:0%;background:var(--dv-l);"></div>
-    </div>
+{{-- ══ FICHIERS REJETÉS (validation) ══ --}}
+<div id="uploadRejects"></div>
+
+{{-- ══ FILE D'ATTENTE D'UPLOAD ══ --}}
+<div class="upload-queue" id="uploadQueue" style="margin-bottom:16px;"></div>
+<div class="upload-summary" id="uploadSummary" style="display:none;margin-bottom:16px;">
+    <span id="uploadSummaryText">—</span>
+    <a onclick="clearFinishedUploads()">Effacer la liste</a>
 </div>
 
 {{-- ══ FILTRES & VUE ══ --}}
@@ -189,7 +323,232 @@ let currentMedia = null;
 let currentPage  = 1;
 let allMedia     = [];
 
-// ── Charger médias ──
+/*
+|--------------------------------------------------------------------------
+| UPLOAD PROFESSIONNEL — file d'attente, validation, progression réelle
+|--------------------------------------------------------------------------
+*/
+
+const UPLOAD_LIMITS = {
+    image: 5 * 1024 * 1024,   // 5 Mo
+    video: 10 * 1024 * 1024,  // 10 Mo
+};
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'video/mp4'];
+
+let uploadQueueItems = []; // { id, file, status, progress, xhr }
+
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' o';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' Ko';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+}
+
+function handleFileSelection(fileList) {
+    const files = Array.from(fileList);
+    const rejects = [];
+
+    files.forEach(file => {
+        // ── Validation type ──
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            rejects.push(`${file.name} : format non supporté`);
+            return;
+        }
+
+        // ── Validation taille ──
+        const isVideo = file.type.startsWith('video');
+        const limit = isVideo ? UPLOAD_LIMITS.video : UPLOAD_LIMITS.image;
+        if (file.size > limit) {
+            rejects.push(`${file.name} : dépasse ${formatSize(limit)}`);
+            return;
+        }
+
+        // ── Ajout à la file d'attente ──
+        const item = {
+            id: 'up_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+            file,
+            status: 'pending', // pending | uploading | success | error
+            progress: 0,
+            xhr: null,
+        };
+        uploadQueueItems.push(item);
+        renderUploadQueue();
+        startUpload(item);
+    });
+
+    if (rejects.length) showUploadRejects(rejects);
+
+    // Reset l'input pour permettre de reprendre les mêmes fichiers si besoin
+    document.getElementById('mediaFile').value = '';
+}
+
+function showUploadRejects(rejects) {
+    const el = document.getElementById('uploadRejects');
+    el.innerHTML = rejects.map(msg => `
+        <div class="upload-reject">
+            <i class="fa-solid fa-circle-exclamation"></i> ${msg}
+        </div>
+    `).join('');
+    setTimeout(() => { el.innerHTML = ''; }, 6000);
+}
+
+function renderUploadQueue() {
+    const container = document.getElementById('uploadQueue');
+
+    container.innerHTML = uploadQueueItems.map(item => {
+        const isImage = item.file.type.startsWith('image');
+        const thumb = isImage
+            ? `<img src="${URL.createObjectURL(item.file)}" alt="">`
+            : `<i class="fa-solid fa-video"></i>`;
+
+        let statusIcon = '';
+        if (item.status === 'success') statusIcon = '<i class="fa-solid fa-circle-check"></i>';
+        else if (item.status === 'error') statusIcon = '<i class="fa-solid fa-circle-exclamation status-icon"></i>';
+
+        let actionBtn = '';
+        if (item.status === 'uploading') {
+            actionBtn = `<button class="upload-item-action" onclick="cancelUpload('${item.id}')" title="Annuler">
+                <i class="fa-solid fa-xmark"></i>
+            </button>`;
+        } else if (item.status === 'error') {
+            actionBtn = `<button class="upload-item-action retry" onclick="retryUpload('${item.id}')" title="Réessayer">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>`;
+        } else if (item.status === 'success') {
+            actionBtn = `<button class="upload-item-action" onclick="removeUploadItem('${item.id}')" title="Retirer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>`;
+        }
+
+        return `
+            <div class="upload-item ${item.status}" data-upload-id="${item.id}">
+                <div class="upload-item-thumb">${thumb}</div>
+                <div class="upload-item-info">
+                    <div class="upload-item-name">${item.file.name}</div>
+                    <div class="upload-item-meta">
+                        <span>${formatSize(item.file.size)}</span>
+                        ${item.status === 'error' ? '<span style="color:#ef4444;">Échec de l\'envoi</span>' : ''}
+                    </div>
+                    <div class="upload-item-bar">
+                        <div class="upload-item-bar-fill" style="width:${item.progress}%;"></div>
+                    </div>
+                </div>
+                <div class="upload-item-status">
+                    <span class="upload-item-pct">${item.status === 'success' ? '' : item.progress + '%'}</span>
+                    ${statusIcon}
+                    ${actionBtn}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updateUploadSummary();
+}
+
+function updateUploadSummary() {
+    const summary = document.getElementById('uploadSummary');
+    const text    = document.getElementById('uploadSummaryText');
+
+    if (!uploadQueueItems.length) {
+        summary.style.display = 'none';
+        return;
+    }
+
+    const total   = uploadQueueItems.length;
+    const done    = uploadQueueItems.filter(i => i.status === 'success').length;
+    const failed  = uploadQueueItems.filter(i => i.status === 'error').length;
+    const pending = total - done - failed;
+
+    summary.style.display = 'flex';
+    text.textContent = pending > 0
+        ? `${done}/${total} envoyés${failed ? ` · ${failed} échec(s)` : ''}`
+        : `${done}/${total} envoyés${failed ? ` · ${failed} échec(s)` : ''} — terminé`;
+}
+
+function startUpload(item) {
+    item.status = 'uploading';
+    renderUploadQueue();
+
+    const fd = new FormData();
+    fd.append('fichier', item.file);
+    fd.append('nom', item.file.name.replace(/\.[^/.]+$/, ''));
+    fd.append('type', item.file.type.startsWith('video') ? 'video' : 'image');
+
+    const xhr = new XMLHttpRequest();
+    item.xhr = xhr;
+
+    xhr.open('POST', '/api/v1/media');
+    xhr.setRequestHeader('Accept', 'application/json');
+
+    const token = typeof getAuthToken === 'function' ? getAuthToken() : null;
+    if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+
+    xhr.upload.onprogress = (e) => {
+        if (!e.lengthComputable) return;
+        item.progress = Math.round((e.loaded / e.total) * 100);
+        renderUploadQueue();
+    };
+
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            item.status = 'success';
+            item.progress = 100;
+            loadMedia(currentPage);
+        } else {
+            item.status = 'error';
+        }
+        renderUploadQueue();
+    };
+
+    xhr.onerror = () => {
+        item.status = 'error';
+        renderUploadQueue();
+    };
+
+    xhr.onabort = () => {
+        item.status = 'error';
+        renderUploadQueue();
+    };
+
+    xhr.send(fd);
+}
+
+function cancelUpload(id) {
+    const item = uploadQueueItems.find(i => i.id === id);
+    if (item && item.xhr) item.xhr.abort();
+}
+
+function retryUpload(id) {
+    const item = uploadQueueItems.find(i => i.id === id);
+    if (item) { item.progress = 0; startUpload(item); }
+}
+
+function removeUploadItem(id) {
+    uploadQueueItems = uploadQueueItems.filter(i => i.id !== id);
+    renderUploadQueue();
+}
+
+function clearFinishedUploads() {
+    uploadQueueItems = uploadQueueItems.filter(i => i.status === 'uploading' || i.status === 'pending');
+    renderUploadQueue();
+}
+
+// Drag & drop
+const _zone = document.getElementById('uploadZone');
+_zone.addEventListener('dragover',  e => { e.preventDefault(); _zone.classList.add('drag'); });
+_zone.addEventListener('dragleave', ()  => _zone.classList.remove('drag'));
+_zone.addEventListener('drop',      e => {
+    e.preventDefault();
+    _zone.classList.remove('drag');
+    handleFileSelection(e.dataTransfer.files);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| CHARGEMENT / AFFICHAGE MÉDIATHÈQUE (inchangé)
+|--------------------------------------------------------------------------
+*/
+
 async function loadMedia(page=1) {
     currentPage = page;
     const search = document.getElementById('mediaSearch').value;
@@ -211,7 +570,6 @@ async function loadMedia(page=1) {
     }
 }
 
-// ── Grille ──
 function renderGrid(medias) {
     const grid = document.getElementById('mediaGrid');
     grid.innerHTML = medias.length
@@ -270,7 +628,6 @@ function renderGrid(medias) {
            </div>`;
 }
 
-// ── Liste ──
 function renderList(medias) {
     const tbody = document.getElementById('mediaList');
     tbody.innerHTML = medias.map(m => `
@@ -327,7 +684,6 @@ function renderList(medias) {
     `).join('');
 }
 
-// ── Pagination ──
 function renderMediaPag(d) {
     const last = Math.ceil((d.total||0) / (d.per_page||24));
     const page = d.current_page || 1;
@@ -343,7 +699,6 @@ function renderMediaPag(d) {
     }
 }
 
-// ── Détail média ──
 function openMediaDetail(m) {
     currentMedia = m;
     document.getElementById('mediaModalTitle').innerHTML =
@@ -380,7 +735,6 @@ async function saveMediaName() {
     const nom = document.getElementById('media-nom').value;
     await apiFetch(`/api/v1/media/${currentMedia.id}`, {
         method: 'PUT',
-        // headers: {'Content-Type':'application/json','X-CSRF-TOKEN':CSRF_TOKEN,'Accept':'application/json'},
         body: JSON.stringify({ nom })
     });
     showToast('Média mis à jour ✓');
@@ -392,7 +746,6 @@ async function deleteCurrentMedia() {
     if (!currentMedia || !confirm(`Supprimer "${currentMedia.nom||'ce média'}" ?`)) return;
     await apiFetch(`/api/v1/media/${currentMedia.id}`, {
         method: 'DELETE',
-        // headers: {'X-CSRF-TOKEN': CSRF_TOKEN}
     });
     showToast('Média supprimé');
     closeMediaModal();
@@ -404,7 +757,6 @@ function copyUrl(url) {
     navigator.clipboard.writeText(u).then(() => showToast('URL copiée !'));
 }
 
-// ── Vue grille / liste ──
 function setView(v) {
     currentView = v;
     document.getElementById('mediaViewGrid').style.display = v === 'grid' ? 'block' : 'none';
@@ -413,55 +765,6 @@ function setView(v) {
     document.getElementById('viewList').style.background   = v === 'list' ? 'rgba(255,255,255,.12)' : '';
 }
 
-// ── Upload ──
-async function uploadFiles(files) {
-    if (!files.length) return;
-    const prog = document.getElementById('uploadProgress');
-    const bar  = document.getElementById('uploadBar');
-    const pct  = document.getElementById('uploadPct');
-    prog.style.display = 'block';
-    let done = 0;
-
-    for (const file of files) {
-        document.getElementById('uploadFileName').innerHTML =
-            `<i class="fa-solid fa-spinner fa-spin"></i> ${file.name}`;
-        const fd = new FormData();
-        fd.append('fichier', file);
-        fd.append('nom', file.name.replace(/\.[^/.]+$/, ''));
-        fd.append('type', file.type.startsWith('video') ? 'video' : 'image');
-
-        try {
-            const r = await apiFetch('/api/v1/media', {
-                method: 'POST',
-                headers: {'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json'},
-                body: fd
-            });
-            if (r.ok) { done++; showToast(file.name + ' uploadé ✓'); }
-            else showToast(file.name + ' : erreur upload', 'error');
-        } catch {
-            showToast(file.name + ' : erreur réseau', 'error');
-        }
-
-        const p = Math.round(done / files.length * 100);
-        bar.style.width = p + '%';
-        pct.textContent = p + '%';
-    }
-
-    setTimeout(() => {
-        prog.style.display = 'none';
-        bar.style.width = '0';
-        pct.textContent = '0%';
-        loadMedia(1);
-    }, 800);
-}
-
-// Drag & drop
-const _zone = document.getElementById('uploadZone');
-_zone.addEventListener('dragover',  e => { e.preventDefault(); _zone.classList.add('drag'); });
-_zone.addEventListener('dragleave', ()  => _zone.classList.remove('drag'));
-_zone.addEventListener('drop',      e => { e.preventDefault(); _zone.classList.remove('drag'); uploadFiles(e.dataTransfer.files); });
-
-// Filtre avec debounce
 let _ft;
 function filterMedia() { clearTimeout(_ft); _ft = setTimeout(() => loadMedia(1), 400); }
 
