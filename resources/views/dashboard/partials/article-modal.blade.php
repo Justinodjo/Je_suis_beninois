@@ -324,6 +324,15 @@ async function loadMediaPicker() {
                <i class="fa-solid fa-photo-film" style="font-size:1.5rem;margin-bottom:8px;display:block;"></i>
                Aucun média. Uploadez des images d'abord.
            </div>`;
+
+
+              if (window._pendingSelectedMediaIds?.length) {
+            window._pendingSelectedMediaIds.forEach(id => {
+                const el = grid.querySelector(`[data-media-id="${id}"]`);
+                if (el) el.classList.add('selected');
+            });
+            window._pendingSelectedMediaIds = null;
+        }
     } catch {}
 }
 
@@ -438,6 +447,7 @@ function resetForm() {
     document.getElementById('art-statut').value = 'brouillon';
     document.querySelectorAll('input[name="art-cats"]:checked,input[name="art-tags"]:checked').forEach(c => c.checked = false);
     document.querySelectorAll('.m-item.selected').forEach(el => el.classList.remove('selected'));
+    window._pendingSelectedMediaIds = null;
     document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-file-pen" style="color:var(--dy);margin-right:8px;"></i>Nouvel article';
     document.getElementById('modalError').style.display = 'none';
     document.getElementById('slug-preview').textContent = '';

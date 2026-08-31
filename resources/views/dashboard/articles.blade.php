@@ -225,6 +225,8 @@ async function editArticle(id) {
             cb.checked = (a.tags||[]).some(t => t.id === +cb.value);
         });
 
+        window._pendingSelectedMediaIds = (a.medias || []).map(m => m.id);
+        
         document.getElementById('modalTitle').innerHTML =
             '<i class="fa-solid fa-pen-to-square" style="color:var(--dy);margin-right:8px;"></i>Modifier l\'article';
 
