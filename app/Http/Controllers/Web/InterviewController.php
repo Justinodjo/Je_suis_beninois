@@ -37,34 +37,38 @@ class InterviewController extends Controller
     }
 
 
-    /**
-     * ✅ show() corrigé - 'publié' avec accent
+/**
+     * Détail d'une interview + sidebar "dernières interviews" + suggestions liées
      */
     public function show($slug)
     {
-        $interview = Article::with(['medias', 'categories', 'user'])
+        $interview = Article::with(['medias', 'categories', 'tags', 'user'])
             ->where('slug', $slug)
             ->where('type', 'interview')
-            ->where('statut', 'publié') // ✅ CORRECTION : 'publié' avec accent (pas 'publie')
+            ->where('statut', 'publié')
             ->firstOrFail();
 
-        $recentInterviews = Article::with(['medias'])
-            ->where('type', 'interview')
-            ->where('id', '!=', $interview->id)
-            ->where('statut', 'publié') // ✅ accent
-            ->latest()
-            ->limit(3)
-            ->get();
-
-        $suggestions = Article::with(['medias'])
-            ->where('type', 'interview')
-            ->where('id', '!=', $interview->id)
-            ->where('statut', 'publié') // ✅ accent
-            ->inRandomOrder()
-            ->limit(3)
-            ->get();
-
         $interview->increment('nb_vues');
+
+        // Sidebar : dernières interviews publiées, hors interview courante
+        $recentInterviews = Article::with('medias', 'categories')
+            ->where('type', 'interview')
+            ->where('statut', 'publié')
+            ->where('id', '!=', $interview->id)
+            ->latest()
+            ->limit(4)
+            ->get();
+
+        // Suggestions : interviews partageant au moins une catégorie
+        $suggestions = Article::with('medias', 'categories')
+            ->where('type', 'interview')
+            ->where('statut', 'publié')
+            ->where('id', '!=', $interview->id)
+            ->whereHas('categories', function ($q) use ($interview) {
+                $q->whereIn('id', $interview->categories->pluck('id'));
+            })
+            ->limit(3)
+            ->get();
 
         return view('pages.interviews.show', compact('interview', 'recentInterviews', 'suggestions'));
     }
