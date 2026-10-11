@@ -11,21 +11,31 @@ class InterviewController extends Controller
     /**
      * ✅ index() ajouté (manquant dans votre code original)
      */
-    public function index(Request $request)
+ /**
+     * Liste paginée des interviews, avec filtre optionnel par catégorie (?categorie=slug)
+     */
+    public function index()
     {
         $query = Article::with(['medias', 'categories', 'user'])
             ->where('type', 'interview')
             ->where('statut', 'publié');
 
-        if ($request->filled('category')) {
-            $categoryId = $request->query('category');
-            $query->whereHas('categories', fn ($q) => $q->where('categories.id', $categoryId));
+        if (request()->filled('categorie')) {
+            $query->whereHas('categories', function ($q) {
+                $q->where('slug', request('categorie'));
+            });
         }
 
         $interviews = $query->latest()->paginate(12)->withQueryString();
 
-        return view('pages.interviews.index', compact('interviews'));
+        // Catégories réellement utilisées par des interviews, pour le filtre
+        $categories = Category::whereHas('articles', function ($q) {
+            $q->where('type', 'interview')->where('statut', 'publié');
+        })->get();
+
+        return view('pages.interviews.index', compact('interviews', 'categories'));
     }
+
 
     /**
      * ✅ show() corrigé - 'publié' avec accent
