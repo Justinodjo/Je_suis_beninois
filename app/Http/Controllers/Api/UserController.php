@@ -16,13 +16,29 @@ class UserController extends Controller
     /**
      * ✅ Liste des utilisateurs — réservé admin (voir routes/api.php)
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            User::select('id', 'name', 'email', 'role', 'avatar', 'statut', 'created_at')
-                ->paginate(20)
-        );
+        $query = User::select('id', 'name', 'email', 'role', 'avatar', 'statut', 'date_derniere_connexion', 'created_at');
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return response()->json($query->latest()->paginate(20)->withQueryString());
     }
+
 
     public function show(User $user)
     {
