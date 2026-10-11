@@ -36,8 +36,15 @@ class DashboardController extends Controller
         return view('dashboard.stats');
     }
 
+    /**
+     * ✅ users() — réservé aux admins (double protection : middleware + contrôleur)
+     */
     public function users()
     {
+        if (auth()->user()?->role !== 'admin') {
+            abort(403, 'Accès réservé aux administrateurs');
+        }
+
         return view('dashboard.users');
     }
 }
