@@ -10,14 +10,14 @@
 @endsection
 
 @section('topbar_actions')
-<button onclick="openModal('userModal')" class="btn-d primary">
+<button onclick="openCreateUserModal()" class="btn-d primary">
     <i class="fa-solid fa-user-plus"></i> Nouvel utilisateur
 </button>
 @endsection
 
 @section('content')
 
-{{-- ══ STAT CARDS ══ --}}
+{{-- ══ STAT CARDS (échantillon global, indépendant des filtres/pagination) ══ --}}
 <div class="stats-grid" style="margin-bottom:24px;">
     <div class="stat-card s-vert">
         <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
@@ -250,19 +250,31 @@
 
 @push('scripts')
 <script>
-let allUsers  = [];
+// ⚠️ À AJUSTER une fois routes/api.php confirmé :
+// doit pointer vers adminStore(), pas vers store() (inscription publique, role forcé à 'visiteur')
+const ADMIN_CREATE_URL = '/api/v1/users';
+
+let allUsers    = [];
 let currentPage = 1;
 
-// ── Charger les utilisateurs ──
+// ── Charger les utilisateurs (filtres envoyés au backend) ──
 async function loadUsers(page = 1) {
     currentPage = page;
+    const search = document.getElementById('userSearch').value;
+    const role   = document.getElementById('roleFilter').value;
+    const statut = document.getElementById('statutFilter').value;
+
+    let url = `/api/v1/users?page=${page}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (role)   url += `&role=${encodeURIComponent(role)}`;
+    if (statut) url += `&statut=${encodeURIComponent(statut)}`;
+
     try {
-        const r = await apiFetch(`/api/v1/users?page=${page}`, {
-            headers: { Accept: 'application/json' }
-        });
+        const r = await apiFetch(url, { headers: { Accept: 'application/json' } });
         const d = await r.json();
         allUsers = d.data || [];
-        updateStats(allUsers);
+        document.getElementById('userCount').textContent =
+            (d.total ?? allUsers.length) + ' utilisateur' + ((d.total ?? allUsers.length) !== 1 ? 's' : '');
         renderUsers(allUsers);
         renderPag(d);
     } catch (e) {
@@ -270,35 +282,25 @@ async function loadUsers(page = 1) {
     }
 }
 
-// ── Stats cards ──
-function updateStats(users) {
-    document.getElementById('statTotal').textContent    = users.length;
-    document.getElementById('statActifs').textContent   = users.filter(u => u.statut === 'actif').length + ' actifs';
-    document.getElementById('statAdmins').textContent   = users.filter(u => u.role === 'admin').length;
-    document.getElementById('statContribs').textContent = users.filter(u => u.role === 'contributeur').length;
-    document.getElementById('statBannis').textContent   = users.filter(u => ['inactif','banni'].includes(u.statut)).length;
-    document.getElementById('userCount').textContent    = users.length + ' utilisateur' + (users.length !== 1 ? 's' : '');
+// ── Stats cards : échantillon global non filtré, indépendant de la table ──
+async function loadStats() {
+    try {
+        const r = await apiFetch('/api/v1/users?per_page=200', { headers: { Accept: 'application/json' } });
+        const d = await r.json();
+        const users = d.data || [];
+        document.getElementById('statTotal').textContent    = d.total ?? users.length;
+        document.getElementById('statActifs').textContent   = users.filter(u => u.statut === 'actif').length + ' actifs';
+        document.getElementById('statAdmins').textContent   = users.filter(u => u.role === 'admin').length;
+        document.getElementById('statContribs').textContent = users.filter(u => u.role === 'contributeur').length;
+        document.getElementById('statBannis').textContent   = users.filter(u => ['inactif','banni'].includes(u.statut)).length;
+    } catch { /* silencieux : les cartes restent à — */ }
 }
 
-// ── Filtres ──
+// ── Filtres (debounce + appel backend) ──
 let filterTimeout;
 function filterUsers() {
     clearTimeout(filterTimeout);
-    filterTimeout = setTimeout(() => {
-        const search = document.getElementById('userSearch').value.toLowerCase();
-        const role   = document.getElementById('roleFilter').value;
-        const statut = document.getElementById('statutFilter').value;
-
-        const filtered = allUsers.filter(u => {
-            const matchSearch = !search || u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search);
-            const matchRole   = !role   || u.role   === role;
-            const matchStatut = !statut || u.statut === statut;
-            return matchSearch && matchRole && matchStatut;
-        });
-
-        renderUsers(filtered);
-        document.getElementById('userCount').textContent = filtered.length + ' utilisateur' + (filtered.length !== 1 ? 's' : '');
-    }, 300);
+    filterTimeout = setTimeout(() => loadUsers(1), 300);
 }
 
 // ── Rendu tableau ──
@@ -408,6 +410,7 @@ async function applyQuickRole() {
         showToast(`Rôle mis à jour → ${role} ✓`);
         closeModal('quickRoleModal');
         loadUsers(currentPage);
+        loadStats();
     } else {
         showToast(d.message || 'Erreur', 'error');
     }
@@ -444,6 +447,32 @@ function togglePwd(inputId, iconId) {
     }
 }
 
+// ── Reset complet du formulaire (utilisé à l'ouverture création ET à la fermeture) ──
+function resetUserForm() {
+    document.getElementById('user-id').value = '';
+    document.getElementById('userModalTitle').innerHTML =
+        '<i class="fa-solid fa-user-plus" style="color:var(--dy);margin-right:8px;"></i>Nouvel utilisateur';
+    document.getElementById('pwdRequired').style.display        = 'inline';
+    document.getElementById('pwdConfirmRequired').style.display = 'inline';
+    document.getElementById('pwdEditNote').style.display        = 'none';
+    document.getElementById('userModalError').style.display     = 'none';
+    ['user-name','user-email','user-bio','user-password','user-password-confirm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('user-role').value   = 'visiteur';
+    document.getElementById('user-statut').value = 'actif';
+    updateAvatarPreview();
+    updateRoleHint();
+}
+
+// ── Ouverture pour CRÉATION — toujours un formulaire vierge ──
+function openCreateUserModal() {
+    resetUserForm();
+    openModal('userModal');
+}
+
+// ── Ouverture pour ÉDITION — pré-remplit avant d'ouvrir ──
 function editUser(u) {
     document.getElementById('user-id').value       = u.id;
     document.getElementById('user-name').value     = u.name;
@@ -457,6 +486,7 @@ function editUser(u) {
     document.getElementById('pwdRequired').style.display        = 'none';
     document.getElementById('pwdConfirmRequired').style.display = 'none';
     document.getElementById('pwdEditNote').style.display        = 'block';
+    document.getElementById('userModalError').style.display     = 'none';
 
     document.getElementById('userModalTitle').innerHTML =
         `<i class="fa-solid fa-user-pen" style="color:var(--dy);margin-right:8px;"></i>Modifier : ${u.name}`;
@@ -492,7 +522,7 @@ async function saveUser() {
     }
 
     const method = id ? 'PUT' : 'POST';
-    const url    = id ? `/api/v1/users/${id}` : '/api/v1/users';
+    const url    = id ? `/api/v1/users/${id}` : ADMIN_CREATE_URL;
 
     try {
         const r = await apiFetch(url, {
@@ -505,6 +535,7 @@ async function saveUser() {
             showToast(id ? 'Utilisateur modifié ✓' : 'Utilisateur créé ✓');
             closeUserModal();
             loadUsers(currentPage);
+            loadStats();
         } else {
             const msg = d.errors ? Object.values(d.errors).flat().join(' | ') : d.message;
             showErr(errEl, msg);
@@ -521,20 +552,7 @@ function showErr(el, msg) {
 
 function closeUserModal() {
     document.getElementById('userModal').classList.remove('open');
-    document.getElementById('user-id').value = '';
-    document.getElementById('userModalTitle').innerHTML =
-        '<i class="fa-solid fa-user-plus" style="color:var(--dy);margin-right:8px;"></i>Nouvel utilisateur';
-    document.getElementById('pwdRequired').style.display        = 'inline';
-    document.getElementById('pwdConfirmRequired').style.display = 'inline';
-    document.getElementById('pwdEditNote').style.display        = 'none';
-    document.getElementById('userModalError').style.display     = 'none';
-    ['user-name','user-email','user-bio','user-password','user-password-confirm'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-    document.getElementById('user-role').value   = 'visiteur';
-    document.getElementById('user-statut').value = 'actif';
-    updateAvatarPreview();
+    resetUserForm();
 }
 
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
@@ -542,6 +560,6 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 
 // Init
 loadUsers(1);
-updateRoleHint();
+loadStats();
 </script>
 @endpush
