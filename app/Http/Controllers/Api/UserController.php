@@ -172,4 +172,30 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Utilisateur supprimé']);
     }
+
+
+
+
+  /**
+     * ✅ revokeTokens() — force la déconnexion d'un utilisateur sans supprimer son compte
+     *    Protégé par 'role:admin' au niveau des routes (même groupe que destroy()).
+     */
+    public function revokeTokens(User $user)
+    {
+        $authUser = Auth::guard('api')->user();
+
+        if (!$authUser || $authUser->role !== 'admin') {
+            return response()->json(['message' => 'Non autorisé'], 403);
+        }
+
+        $count = $user->tokens()->count();
+        $user->tokens()->delete();
+
+        return response()->json([
+            'message' => $count > 0
+                ? "{$count} session(s) révoquée(s) pour {$user->name}"
+                : 'Aucune session active à révoquer',
+        ]);
+    }
+
 }
