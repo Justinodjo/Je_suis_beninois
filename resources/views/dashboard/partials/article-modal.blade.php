@@ -231,6 +231,14 @@ function switchTab(name) {
     if (name === 'media') loadMediaPicker();
 }
 
+    function fixMediaUrl(url) {
+    if (!url) return '';
+
+    return url.replace(
+        /\/storage\/storage\//g,
+        '/storage/'
+    );
+}
 function updateSlugPreview(titre) {
     const slug = titre.toLowerCase().normalize('NFD')
         .replace(/[\u0300-\u036f]/g,'')
@@ -307,11 +315,11 @@ async function loadMediaPicker() {
             <div class="m-item" onclick="toggleMedia(this,${m.id})" data-media-id="${m.id}">
                 ${m.type === 'video'
                     ? (m.url_thumbnail
-                        ? `<img src="${m.url_thumbnail}" alt="${m.nom||'Vidéo'}">`
+                        ? `<img src="${fixMediaUrl(m.url_thumbnail)}" alt="${m.nom||'Vidéo'}">`
                         : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-c2);">
                                <i class="fa-solid fa-video" style="font-size:1.5rem;color:var(--text-d);"></i>
                            </div>`)
-                    : `<img src="${m.url}" alt="${m.nom||'Média'}"
+                    : `<img src="${fixMediaUrl(m.url)}" alt="${m.nom||'Média'}"
                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:var(--bg-c2);">
                            <i class="fa-solid fa-image-slash" style="color:var(--text-d);"></i>
