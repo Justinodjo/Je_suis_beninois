@@ -8,7 +8,9 @@
             <div class="footer-brand">
                 <div class="logo">
                     <div class="logo-flag" style="height:40px;width:28px;">
-                        <div class="f-v"></div><div class="f-y"></div><div class="f-r"></div>
+                         <img src="{{ asset('images/logo.jpeg') }}"
+                         alt="Je Suis Béninois"
+                         class="site-logo">
                     </div>
                     <div class="logo-text">JE SUIS BÉNINOIS<span>Fierté & Culture</span></div>
                 </div>
