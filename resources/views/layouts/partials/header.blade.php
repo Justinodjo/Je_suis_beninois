@@ -24,7 +24,7 @@
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Accueil</a>
                 <a href="{{ route('actualites') }}" class="{{ request()->routeIs('actualites') ? 'active' : '' }}">Actualités</a>
                 <a href="{{ route('culture.index') }}" class="{{ request()->routeIs('culture.index') ? 'active' : '' }}">Culture</a>
-                <a href="{{ route('culture.patrimoine') }}" class="{{ request()->routeIs('culture.patrimoine') ? 'active' : '' }}">Histoire</a>
+                <a href="{{ route('culture.patrimoine') }}" class="{{ request()->routeIs('culture.patrimoine') ? 'active' : '' }}">Épopée</a>
                 <a href="{{ route('galerie') }}" class="{{ request()->routeIs('galerie') ? 'active' : '' }}">Galerie</a>
                 <a href="{{ route('interviews.index') }}" class="{{ request()->routeIs('interviews.*') ? 'active' : '' }}">Interviews</a>
                 <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
