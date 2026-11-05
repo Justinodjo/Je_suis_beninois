@@ -4,32 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Media extends Model
 {
     use HasFactory;
 
-    protected $table = 'media'; // ✅ Table au singulier (votre migration crée 'media')
+    protected $table = 'media';
 
     protected $fillable = [
-        'nom',
-        'titre',
-        'description',
-        'type',
-        // ✅ ATTENTION : votre migration utilise 'url' et 'url_thumbnail' (pas path/thumbnail_path)
-        // Harmonisé avec la migration create_media_table.php
-        'url',
-        'url_thumbnail',
-        'chemin',
-        'mime_type',
-        'taille',
-        'largeur',
-        'hauteur',
-        'duree',
-        'alt_text',
-        'credits',
-        'user_id',
+        'nom', 'titre', 'description', 'type',
+        'url', 'url_thumbnail', 'chemin',
+        'mime_type', 'taille', 'largeur', 'hauteur', 'duree',
+        'alt_text', 'credits', 'user_id',
     ];
 
     protected $casts = [
@@ -39,39 +25,48 @@ class Media extends Model
         'duree'   => 'integer',
     ];
 
-    /**
-     * ✅ CORRECTION : La migration stocke l'URL directe (pas un path Storage)
-     * Retourner l'URL telle quelle si elle commence par http, sinon via Storage
-     */
-    public function getUrlAttribute($value)
+    protected function resolvePublicUrl(?string $value, ?string $path = null): ?string
     {
+        if ($path) {
+            return asset('storage/' . ltrim($path, '/'));
+        }
         if (!$value) return null;
         if (str_starts_with($value, 'http')) return $value;
-        return Storage::disk('public')->url($value);
+
+        $clean = preg_replace('#^/?(storage/)+#', '', ltrim($value, '/'));
+        return asset('storage/' . $clean);
     }
 
+    public function getUrlAttribute($value)
+    {
+        return $this->resolvePublicUrl($value, $this->attributes['chemin'] ?? null);
+    }
 
     public function getUrlThumbnailAttribute()
     {
         $value = $this->attributes['url_thumbnail'] ?? null;
-        
         if (!$value) return null;
-        if (str_starts_with($value, 'http')) return $value;
-        return Storage::disk('public')->url($value);
+        if (str_starts_with($value, 'http')) {
+            $pos = strpos($value, '/storage/');
+            if ($pos !== false && !str_contains($value, 'youtube') && !str_contains($value, 'vimeo') && !str_contains($value, 'unsplash')) {
+                return asset(ltrim(substr($value, $pos), '/'));
+            }
+            return $value;
+        }
+        return $this->resolvePublicUrl($value);
     }
 
-    /**
-     * Relation avec les articles
-     */
+    public function getDisplayUrlAttribute()
+    {
+        return $this->type === 'video' ? $this->url_thumbnail : $this->url;
+    }
+
     public function articles()
     {
         return $this->belongsToMany(Article::class, 'article_media')
                     ->withPivot(['ordre', 'legende']);
     }
 
-    /**
-     * Relation avec l'utilisateur
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
