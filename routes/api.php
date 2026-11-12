@@ -21,7 +21,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('/register', [UserController::class, 'store'])->middleware('throttle:3,10');
 
-    Route::middleware('throttle:60,1')->group(function () {
+   Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+ Route::middleware('throttle:60,1')->group(function () {
         Route::get('/articles', [ArticleController::class, 'index']);
         Route::get('/articles/{article}', [ArticleController::class, 'show']);
         Route::get('/categories', [CategoryController::class, 'index']);
