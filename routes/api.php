@@ -42,8 +42,6 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:api')->group(function () {
 
         Route::get('/me', [AuthController::class, 'me']);
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/refresh', [AuthController::class, 'refresh']);
         Route::put('/profile', [UserController::class, 'updateProfile']);
 
         // Interactions ouvertes à tout compte actif
