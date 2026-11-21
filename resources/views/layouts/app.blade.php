@@ -293,7 +293,7 @@
 <body>
 
 <!-- Pattern décoratif top -->
-<div class="wax-divider"></div>
+<div class="pattern-strip"></div>
 
 @include('layouts.partials.header')
 
