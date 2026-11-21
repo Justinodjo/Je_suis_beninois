@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\InteractionController;
 use App\Http\Controllers\Web\MediaController;
 use App\Http\Controllers\Web\ContactController;
+use App\Http\Controllers\Web\ContributionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -138,3 +139,7 @@ Route::prefix('dashboard')
         Route::get('/users', [DashboardController::class, 'users'])
             ->name('users');
     });
+
+Route::get('/contribution', [ContributionController::class, 'index'])
+    ->middleware(['auth:api', 'role:contributeur'])
+    ->name('contribution.index');
