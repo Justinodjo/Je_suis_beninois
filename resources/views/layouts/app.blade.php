@@ -444,7 +444,7 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken(),
+                'X-CSRF-TOKEN': getCsrfToken(),
             },
             body: JSON.stringify({ name, email, password, password_confirmation })
         });
