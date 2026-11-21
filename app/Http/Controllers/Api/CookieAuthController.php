@@ -66,6 +66,14 @@ class CookieAuthController extends Controller
         }
     }
 
+    public function me(Request $request)
+{
+    $user = Auth::guard('api')->user();
+
+    return response()->json([
+        'user' => $user->only(['id','name','email','role','avatar','bio','statut']),
+    ]);
+}
     /**
      * Déconnexion et suppression du cookie.
      */
