@@ -33,7 +33,8 @@ class JwtFromCookie
             $safeMethod = in_array($request->method(), ['GET', 'HEAD', 'OPTIONS'], true);
 
             // Anti-CSRF : écriture authentifiée par cookie => X-Requested-With obligatoire
-            if (! $safeMethod
+            if ($request->is('api/*')
+                && ! $safeMethod
                 && $request->header('X-Requested-With') !== 'XMLHttpRequest'
                 && ! $request->is('api/v1/login', 'api/v1/register')) {
                 return response()->json(['message' => 'Requête refusée'], 403);

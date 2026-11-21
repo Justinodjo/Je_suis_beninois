@@ -287,7 +287,7 @@ const API_BASE_URL = '/api/v1';
 
 function getAuthToken() {
 
-    return localStorage.getItem('auth_token');
+       return null; // le JWT est dans un cookie HttpOnly : illisible par le JavaScript
 
 }
 
@@ -306,91 +306,66 @@ function getAuthToken() {
 |--------------------------------------------------------------------------
 */
 
-async function apiFetch(url, options = {}) {
-
-    const token = getAuthToken();
-
-    const isFormData =
-        options.body instanceof FormData;
+async function apiFetch(url, options = {}, _retried = false) {
+ 
+    const isFormData = options.body instanceof FormData;
 
 
     const headers = {
         'Accept': 'application/json',
-
+        'X-Requested-With': 'XMLHttpRequest', // exigé par l'anti-CSRF du cookie JWT
         ...(options.headers || {})
     };
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Ajouter le JWT
-    |--------------------------------------------------------------------------
-    */
-
-    if (token) {
-
-        headers['Authorization'] =
-            'Bearer ' + token;
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Content-Type JSON
-    |--------------------------------------------------------------------------
-    */
+ 
 
     if (!isFormData && options.body) {
 
-        headers['Content-Type'] =
-            'application/json';
+        headers['Content-Type'] = 'application/json';
 
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Requête
-    |--------------------------------------------------------------------------
-    */
 
     const response = await fetch(url, {
 
         ...options,
 
-        headers
+        headers,
+        credentials: 'same-origin' // le cookie HttpOnly part tout seul
 
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | JWT invalide / expiré
-    |--------------------------------------------------------------------------
-    */
-
     if (
         response.status === 401 &&
-        !url.includes('/login')
+        !url.includes('/login') &&
+        !url.includes('/refresh')
     ) {
-
-        console.warn(
-            'JWT invalide ou expiré.'
-        );
-
-
-        localStorage.removeItem(
-            'auth_token'
-        );
-
-
-        window.location.href = '/';
+        // JWT expiré : renouvellement via le cookie, puis on rejoue la requête une fois
+        if (!_retried && await refreshSession()) {
+            return apiFetch(url, options, true);
+        }
+        window.location.href = '/login';
 
     }
-
-
     return response;
+}
+let _refreshing = null;
+ 
+function refreshSession() {
+    _refreshing = _refreshing || fetch(API_BASE_URL + '/refresh', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin'
+    })
+        .then(r => r.ok)
+        .catch(() => false)
+        .finally(() => { _refreshing = null; });
+
+    return _refreshing;
+    
 
 }
 
@@ -407,26 +382,9 @@ async function apiFetch(url, options = {}) {
 
 async function checkAuthentication() {
 
-    const token = getAuthToken();
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Aucun JWT
-    |--------------------------------------------------------------------------
-    */
 
-    if (!token) {
-
-        console.warn(
-            'Aucun token JWT trouvé.'
-        );
-
-        window.location.href = '/';
-
-        return;
-
-    }
 
 
     try {
@@ -579,58 +537,24 @@ async function checkAuthentication() {
 
 async function logout() {
 
-    const token =
-        getAuthToken();
+  
 
 
     try {
 
-        if (token) {
-
-            await fetch(
-                API_BASE_URL + '/logout',
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Accept':
-                            'application/json',
-
-                        'Authorization':
-                            'Bearer ' + token
-                    }
-                }
-            );
-
-        }
+        await fetch(API_BASE_URL + '/logout', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+        });
 
     } catch (error) {
 
-        console.error(
-            'Erreur déconnexion:',
-            error
-        );
+        console.error('Erreur déconnexion:', error);
 
     } finally {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Supprimer le JWT localement
-        |--------------------------------------------------------------------------
-        */
-
-        localStorage.removeItem(
-            'auth_token'
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Retour accueil
-        |--------------------------------------------------------------------------
-        */
-
-        window.location.href = '/';
+        localStorage.removeItem('auth_token'); // nettoyage de l'ancien stockage
 
     }
 
@@ -679,7 +603,7 @@ function showToast(
     toast.innerHTML =
         `<i class="fa-solid ${
             icons[type] || icons.success
-        }"></i> ${message}`;
+        }"></i> ${esc(message)}`;
 
 
     container.appendChild(
@@ -739,7 +663,7 @@ function showConfirmToast(message, onConfirm) {
     toast.innerHTML = `
         <div style="display:flex;align-items:center;gap:12px;">
             <i class="fa-solid fa-triangle-exclamation" style="color:#fb923c;"></i>
-            <span>${message}</span>
+            <span>${esc(message)}</span>
             <div style="display:flex;gap:6px;margin-left:auto;">
                 <button class="toast-btn toast-btn-cancel">
                     Annuler

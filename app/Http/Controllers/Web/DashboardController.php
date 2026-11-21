@@ -33,9 +33,8 @@ class DashboardController extends Controller
     }
 
     /**
-     * Page Utilisateurs. Le HTML n'est qu'une coquille : les données et les actions
-     * sont protégées par l'API (role:admin). L'ancien test auth()->user() utilisait le
-     * guard `web` (session), toujours vide avec le JWT, et renvoyait 403 à tout le monde.
+        * Page Utilisateurs : accès contrôlé par les middlewares de la route (auth:api + role:admin),
+        * le JWT étant lu depuis le cookie HttpOnly (JwtFromCookie).
      */
     public function users()
     {

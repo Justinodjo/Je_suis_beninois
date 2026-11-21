@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CookieAuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\CommentController;
@@ -18,11 +19,12 @@ Route::prefix('v1')->group(function () {
     | Routes publiques
     |--------------------------------------------------------------------------
     */
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/login', [CookieAuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('/register', [UserController::class, 'store'])->middleware('throttle:3,10');
 
-    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
-    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::post('/logout', [CookieAuthController::class, 'logout'])->middleware('auth:api');
+    Route::post('/refresh', [CookieAuthController::class, 'refresh']);
+    // publique : doit aussi effacer le cookie quand le JWT est déjà expiré
  Route::middleware(['auth.optional', 'throttle:60,1'])->group(function () {
         Route::get('/articles', [ArticleController::class, 'index']);
         Route::get('/articles/{article}', [ArticleController::class, 'show']);
@@ -41,7 +43,7 @@ Route::prefix('v1')->group(function () {
     */
     Route::middleware('auth:api')->group(function () {
 
-        Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/me', [CookieAuthController::class, 'me']);
         Route::put('/profile', [UserController::class, 'updateProfile']);
 
         // Interactions ouvertes à tout compte actif

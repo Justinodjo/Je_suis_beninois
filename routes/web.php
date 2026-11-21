@@ -116,6 +116,7 @@ Route::get('/register', [AuthController::class, 'register'])
 
 Route::prefix('dashboard')
     ->name('dashboard.')
+    ->middleware(['auth:api', 'role:admin'])
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])

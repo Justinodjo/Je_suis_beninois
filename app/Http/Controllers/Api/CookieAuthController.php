@@ -1,6 +1,4 @@
-
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -48,7 +46,7 @@ class CookieAuthController extends Controller
 
     /**
      * Renouvellement du JWT.
-     * Cette route doit être protégée par auth:api.
+     * Route publique volontairement : un JWT expiré (mais encore renouvelable) doit pouvoir être échangé.
      */
     public function refresh(Request $request)
     {
@@ -95,6 +93,7 @@ class CookieAuthController extends Controller
                 $user->role,
                 ['admin', 'contributeur'],
                 true
+                ['admin'], true
             ) ? route('dashboard.index') : route('home'),
 
             'user' => $user->only([

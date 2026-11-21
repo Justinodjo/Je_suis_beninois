@@ -10,6 +10,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Derrière un proxy TLS (Render, etc.) : sans ça, isSecure() reste faux et le cookie JWT n'est pas « Secure »
+        $middleware->trustProxies(at: '*');
+
+        // Le JWT est déjà signé ; le groupe api ne chiffre pas les cookies, donc on exclut aussi celui-ci du groupe web
+        $middleware->encryptCookies(except: [\App\Http\Middleware\JwtFromCookie::NAME]);
+
+        // JWT lu depuis le cookie HttpOnly (avant auth:api / role)
+        $middleware->api(prepend: [\App\Http\Middleware\JwtFromCookie::class]);
         // ✅ CORS (OBLIGATOIRE pour API)
         $middleware->append(
             \Illuminate\Http\Middleware\HandleCors::class
@@ -20,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \App\Http\Middleware\JwtFromCookie::class,
     ]);
 
         $middleware->alias([

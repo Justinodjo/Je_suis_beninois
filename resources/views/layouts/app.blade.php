@@ -403,7 +403,8 @@ document.getElementById('loginForm')?.addEventListener('submit', async function(
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
     },
     body: JSON.stringify({ email, password })
 });
@@ -411,9 +412,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async function(
        const data = await res.json();
 
 if (res.ok) {
-    localStorage.setItem('auth_token', data.token);
-
-    window.location.href = '/dashboard';
+    window.location.href = data.redirect || '/';
 } else {
     errorDiv.style.display = 'block';
     errorDiv.textContent = data.message || 'Identifiants invalides';
@@ -462,13 +461,13 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': csrfToken(),
+                'X-Requested-With': 'XMLHttpRequest',
             },
             body: JSON.stringify({ email, password })
         });
         const loginData = await loginRes.json();
 
         if (loginRes.ok) {
-            if (loginData.token) localStorage.setItem('auth_token', loginData.token);
             window.location.href = loginData.redirect || '/';
         } else {
             errorDiv.style.display = 'block';

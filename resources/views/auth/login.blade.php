@@ -725,15 +725,18 @@ document
 
                             method: 'POST',
 
-                            headers: {
+                    headers: {
 
-                                'Content-Type':
-                                    'application/json',
+                        'Content-Type':
+                            'application/json',
 
-                                'Accept':
-                                    'application/json'
+                        'Accept':
+                            'application/json',
 
-                            },
+                        'X-Requested-With':
+                            'XMLHttpRequest'
+
+                    },
 
                             body:
                                 JSON.stringify({
@@ -777,10 +780,7 @@ document
                     |--------------------------------------------------------------------------
                     */
 
-                    localStorage.setItem(
-                        'auth_token',
-                        data.token
-                    );
+                   localStorage.removeItem('auth_token');
 
 
                     /*

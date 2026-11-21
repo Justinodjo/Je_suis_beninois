@@ -40,22 +40,24 @@
                 </button>
 
                 {{-- Visiteur (affiché par défaut) --}}
-                <span id="header-guest" style="display:contents;">
+                @php $headerUser = auth('api')->user(); @endphp
+                @if($headerUser && $headerUser->statut === 'actif')
+                    <span id="header-user" style="display:flex;align-items:center;gap:10px;">
+                        @if($headerUser->role === 'admin')
+                            <a href="{{ route('dashboard.index') }}" class="btn btn-primary"
+                               style="font-size:.82rem;padding:8px 18px;">
+                                <i class="fa-solid fa-gauge-high"></i> Dashboard
+                            </a>
+                        @endif
+                        <span style="font-weight:600;">{{ $headerUser->name }}</span>
+                        <button type="button" id="header-logout" class="btn btn-secondary"
+                                style="font-size:.82rem;padding:8px 18px;">Déconnexion</button>
+                    </span>
+                    <script src="{{ asset('js/header-auth.js') }}"></script>
+                @else
                     <a href="{{ route('login') }}" class="btn btn-login">Se connecter</a>
                     <a href="{{ route('register') }}" class="btn btn-secondary">S'inscrire</a>
-                +                </span>
-+
-+                {{-- Utilisateur connecté (rempli par public/js/header-auth.js via le JWT) --}}
-+                <span id="header-user" style="display:none;align-items:center;gap:10px;">
-+                    <a href="{{ route('dashboard.index') }}" id="header-dashboard" class="btn btn-primary"
-+                       style="display:none;font-size:.82rem;padding:8px 18px;">
-+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
-+                    </a>
-+                    <span id="header-username" style="font-weight:600;"></span>
-+                    <button type="button" id="header-logout" class="btn btn-secondary"
-+                            style="font-size:.82rem;padding:8px 18px;">Déconnexion</button>
-+                </span>
-+                <script src="{{ asset('js/header-auth.js') }}"></script>
+                @endif
 
                 <button class="nav-burger" onclick="openMobileNav()">
                     <i class="fa-solid fa-bars"></i>

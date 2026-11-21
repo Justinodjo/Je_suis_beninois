@@ -391,21 +391,21 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const TOKEN_KEY = 'auth_token'; // ⚠️ à ajuster selon la clé réelle utilisée par votre AuthController JS
-    const token = localStorage.getItem(TOKEN_KEY);
+    // État de connexion lu côté serveur (cookie JWT HttpOnly) : le JS n'a jamais accès au token
+    const isLoggedIn = @json(auth('api')->check());
 
     const likeBtn      = document.getElementById('likeBtn');
     const loginToLike  = document.getElementById('loginToLike');
     const commentForm  = document.getElementById('commentForm');
     const loginComment = document.getElementById('loginToComment');
 
-    if (!token) {
+    if (!isLoggedIn) {
         if (loginToLike)  loginToLike.style.display  = 'inline-block';
         if (loginComment) loginComment.style.display = 'block';
         return;
     }
 
-    const authHeaders = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' };
+    const authHeaders = { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
 
     // Vérifie la validité du token puis affiche les contrôles + état du like
     fetch('/api/v1/me', { headers: authHeaders })
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyLikeState(data.liked, data.nb_likes);
         })
         .catch(() => {
-            localStorage.removeItem(TOKEN_KEY);
+
             if (loginToLike)  loginToLike.style.display  = 'inline-block';
             if (loginComment) loginComment.style.display = 'block';
         });

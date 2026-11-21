@@ -509,8 +509,7 @@ function startUpload(item) {
     xhr.open('POST', '/api/v1/media');
     xhr.setRequestHeader('Accept', 'application/json');
 
-    const token = typeof getAuthToken === 'function' ? getAuthToken() : null;
-    if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // cookie JWT HttpOnly + anti-CSRF
 
     xhr.upload.onprogress = (e) => {
         if (!e.lengthComputable) return;
