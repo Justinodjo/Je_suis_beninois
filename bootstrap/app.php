@@ -24,12 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         // ✅ AJOUTER le groupe web par défaut (sessions, CSRF, cookies)
-    $middleware->web(append: [
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \App\Http\Middleware\JwtFromCookie::class,
-    ]);
+          $middleware->web(prepend: [
+            \App\Http\Middleware\JwtFromCookie::class,
+        ]);
 
         $middleware->alias([
         'auth.optional' => \App\Http\Middleware\OptionalJwtAuth::class,
