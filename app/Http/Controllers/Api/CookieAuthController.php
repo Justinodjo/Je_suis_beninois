@@ -93,7 +93,6 @@ class CookieAuthController extends Controller
                 $user->role,
                 ['admin', 'contributeur'],
                 true
-                ['admin'], true
             ) ? route('dashboard.index') : route('home'),
 
             'user' => $user->only([
