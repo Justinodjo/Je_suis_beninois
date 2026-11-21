@@ -63,6 +63,16 @@
             var(--rouge) 40px, var(--rouge) 60px
         );
     }
+
+.wax-divider {
+    height: 14px;
+    background:
+        conic-gradient(from 45deg at 50% 50%, var(--vert) 90deg, transparent 90deg 180deg, var(--jaune) 180deg 270deg, transparent 270deg),
+        conic-gradient(from 225deg at 50% 50%, var(--rouge) 90deg, transparent 90deg 180deg, var(--vert) 180deg 270deg, transparent 270deg);
+    background-size: 14px 14px, 14px 14px;
+    background-position: 0 0, 7px 0;
+    opacity: .92;
+}
     .pattern-bg {
         background-image:
             radial-gradient(circle at 20% 50%, rgba(27,94,32,0.06) 0%, transparent 50%),
@@ -283,7 +293,7 @@
 <body>
 
 <!-- Pattern décoratif top -->
-<div class="pattern-strip"></div>
+<div class="wax-divider"></div>
 
 @include('layouts.partials.header')
 
