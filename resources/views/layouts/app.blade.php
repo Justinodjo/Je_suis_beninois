@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo.jpeg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.jpeg') }}">
     <title>@yield('title', 'Je Suis Béninois')</title>
  <link
         rel="stylesheet"
