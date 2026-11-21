@@ -234,39 +234,45 @@
 <script>
 // ── MENU MOBILE ──
 function openMobileNav() {
-    document.getElementById('mainNav').classList.add('open');
-    document.getElementById('navMobileOverlay').classList.add('show');
+    document.getElementById('mainNav')?.classList.add('open');
+    document.getElementById('navMobileOverlay')?.classList.add('show');
 }
 
 function closeMobileNav() {
-    document.getElementById('mainNav').classList.remove('open');
-    document.getElementById('navMobileOverlay').classList.remove('show');
+    document.getElementById('mainNav')?.classList.remove('open');
+    document.getElementById('navMobileOverlay')?.classList.remove('show');
 }
 
 // ── MODAL RECHERCHE ──
 function openSearchModal() {
-    document.getElementById('searchModal').classList.add('open');
+    document.getElementById('searchModal')?.classList.add('open');
     document.body.style.overflow = 'hidden';
     setTimeout(() => document.getElementById('searchModalInput')?.focus(), 50);
 }
 
 function closeSearchModal() {
-    document.getElementById('searchModal').classList.remove('open');
+    document.getElementById('searchModal')?.classList.remove('open');
     document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeSearchModal();
-});
-
+// Lié à l'élément de la page courante (recréé à chaque navigation Turbo)
 document.getElementById('searchModal')?.addEventListener('click', function (e) {
     if (e.target === this) closeSearchModal();
 });
 
-// Réinitialiser à chaque navigation Turbo (menu + modal restent fermés)
-document.addEventListener('turbo:load', function () {
-    closeMobileNav();
-    closeSearchModal();
-});
+// Listeners globaux : enregistrés une seule fois
+if (!window.__headerNavBound) {
+    window.__headerNavBound = true;
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeSearchModal();
+    });
+
+    // Menu et modal restent fermés à chaque navigation Turbo
+    document.addEventListener('turbo:load', function () {
+        closeMobileNav();
+        closeSearchModal();
+    });
+}
 </script>
 @endpush
