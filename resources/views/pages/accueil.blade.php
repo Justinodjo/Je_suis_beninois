@@ -406,7 +406,7 @@
             <div class="hero-list-header">Aussi à la une</div>
             @forelse($heroSlides->slice(1) as $i => $article)
             <a href="{{ route('culture.article', $article->slug) }}" class="hero-list-item" data-list-slide="{{ $i + 1 }}">
-                <span class="hero-list-rank">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                <!-- <span class="hero-list-rank">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span> -->
                 <div class="hero-list-thumb">
                     <img src="{{ $article->medias->first()?->url ?? 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=200&q=70' }}"
                          alt="{{ $article->titre }}">
