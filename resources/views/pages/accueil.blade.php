@@ -416,7 +416,7 @@
 </section>
 
 {{-- ════ MOTIF WAX — SÉPARATEUR SIGNATURE ════ --}}
-<div class="wax-divider"></div>
+<div class="pattern-strip"></div>
 
 {{-- ════ SECTIONS PAR CATÉGORIE ════ --}}
 <section class="categories-section">
