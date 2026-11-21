@@ -89,11 +89,11 @@ class CookieAuthController extends Controller
     {
         $body = [
             'message' => 'Connexion réussie.',
-            'redirect' => in_array(
-                $user->role,
-                ['admin', 'contributeur'],
-                true
-            ) ? route('dashboard.index') : route('home'),
+            'redirect' => match ($user->role) {
+                    'admin'        => route('dashboard.index'),
+                    'contributeur' => route('contribution.index'),
+                    default        => route('home'),
+                },
 
             'user' => $user->only([
                 'id',
