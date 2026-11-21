@@ -388,7 +388,9 @@ function toggleAuthSection() {
     register.style.display = register.style.display === 'none' ? 'block' : 'none';
 }
 
-const csrfToken = () => document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
 
 // ── LOGIN ──
 document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
