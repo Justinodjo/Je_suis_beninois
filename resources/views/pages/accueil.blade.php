@@ -12,19 +12,6 @@
     --sable: #F1ECE0;
 }
 
-/* ═══════════════════════════════════════════
-   MOTIF WAX — SIGNATURE DE LA PAGE
-   Séparateur de section inspiré du tissu Ankara
-═══════════════════════════════════════════ */
-.wax-divider {
-    height: 14px;
-    background:
-        conic-gradient(from 45deg at 50% 50%, var(--vert) 90deg, transparent 90deg 180deg, var(--jaune) 180deg 270deg, transparent 270deg) ,
-        conic-gradient(from 225deg at 50% 50%, var(--rouge) 90deg, transparent 90deg 180deg, var(--vert) 180deg 270deg, transparent 270deg);
-    background-size: 14px 14px, 14px 14px;
-    background-position: 0 0, 7px 0;
-    opacity: .92;
-}
 
 /* ═══════════════════════════════════════════
    HERO ÉDITORIAL — UNE DE JOURNAL ASYMÉTRIQUE
