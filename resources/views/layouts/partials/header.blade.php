@@ -196,6 +196,12 @@
     .search-modal-form .btn { width: 100%; justify-content: center; margin-top: 8px; }
     .search-modal-hint { display: none; }
 }
+
+    .nav-mobile-auth { display: none; }
+@media (max-width: 900px) {
+    .nav-mobile-auth { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .nav-mobile-auth .btn { text-align: center; }
+}
 </style>
 @endpush
 
