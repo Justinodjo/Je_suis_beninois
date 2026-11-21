@@ -198,6 +198,31 @@
 }
 
     .nav-mobile-auth { display: none; }
+    .nav-mobile-auth { display: none; }
+
+@media (max-width: 900px) {
+    .main-nav .nav-mobile-auth {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+    .main-nav .nav-mobile-auth .btn {
+        justify-content: center;
+        text-align: center;
+    }
+    .main-nav .nav-mobile-auth .btn-login {
+        background: var(--vert);
+        color: #fff;
+    }
+    .main-nav .nav-mobile-auth .btn-secondary {
+        background: transparent;
+        color: var(--vert);
+        border: 2px solid var(--vert);
+    }
+}
 @media (max-width: 900px) {
     .nav-mobile-auth { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
     .nav-mobile-auth .btn { text-align: center; }
