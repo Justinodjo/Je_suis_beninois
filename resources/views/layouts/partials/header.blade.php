@@ -2,6 +2,7 @@
      PARTIAL — HEADER
      Inclus dans: layouts/app.blade.php
 ═══════════════════════════════════════════ --}}
+@php $headerUser = auth('api')->user(); @endphp
 <header class="site-header">
     <div class="container">
         <div class="header-inner">
@@ -49,7 +50,6 @@
                 </button>
 
                 {{-- Visiteur (affiché par défaut) --}}
-                @php $headerUser = auth('api')->user(); @endphp
                 @if($headerUser && $headerUser->statut === 'actif')
                     <span id="header-user" style="display:flex;align-items:center;gap:10px;">
                         @if($headerUser->role === 'admin')
