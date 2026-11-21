@@ -16,6 +16,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Ce seeder VIDE les tables puis recrée des comptes de démo connus :
+        // il ne doit jamais tourner en production.
+        if (app()->isProduction()) {
+            $this->command->error('Seeder de démo bloqué en production. Utilisez : php artisan app:create-admin');
+            return;
+        }
+
         $this->command->info('Nettoyage de la base avant remplissage...');
 
         $this->wipeDatabase();

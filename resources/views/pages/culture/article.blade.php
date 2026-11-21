@@ -237,7 +237,7 @@
                 @endif
 
                 <div class="article-content">
-                    {!! $article->contenu !!}
+                    {!! \App\Support\HtmlSanitizer::clean($article->contenu) !!}
                 </div>
 
                 {{-- Tags --}}

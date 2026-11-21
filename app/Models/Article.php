@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; // ✅ CORRECTION : SoftDeletes (votre migration a $table->softDeletes())
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Support\HtmlSanitizer; // ✅ CORRECTION : SoftDeletes (votre migration a $table->softDeletes())
 
 class Article extends Model
 {
@@ -32,6 +34,15 @@ class Article extends Model
         'nb_likes'         => 'integer',
         'nb_commentaires'  => 'integer',
     ];
+    /**
+     * Le contenu HTML est assaini à l'écriture (anti-XSS stocké).
+     */
+    protected function contenu(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value === null ? null : HtmlSanitizer::clean($value),
+        );
+    }
 
     // ✅ Scopes utiles
     public function scopePublished($query)

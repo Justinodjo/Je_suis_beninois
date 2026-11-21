@@ -21,10 +21,6 @@ class DashboardController extends Controller
         return view('dashboard.categories');
     }
 
-    public function tags()
-    {
-        return view('dashboard.tags');
-    }
 
     public function media()
     {
@@ -37,13 +33,13 @@ class DashboardController extends Controller
     }
 
     /**
-     * ✅ users() — réservé aux admins (double protection : middleware + contrôleur)
+     * Page Utilisateurs. Le HTML n'est qu'une coquille : les données et les actions
+     * sont protégées par l'API (role:admin). L'ancien test auth()->user() utilisait le
+     * guard `web` (session), toujours vide avec le JWT, et renvoyait 403 à tout le monde.
      */
     public function users()
     {
-        if (auth()->user()?->role !== 'admin') {
-            abort(403, 'Accès réservé aux administrateurs');
-        }
+      
 
         return view('dashboard.users');
     }

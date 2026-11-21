@@ -44,6 +44,7 @@ COPY . .
 
 # Installer les dépendances PHP
 RUN composer install \
+    --no-dev \
     --optimize-autoloader \
     --no-interaction
 
@@ -60,8 +61,10 @@ RUN chmod -R 775 storage bootstrap/cache
 EXPOSE 10000
 
 
-# Démarrage Laravel
-CMD php artisan migrate --force && \
-    php artisan db:seed --force && \
-    php artisan storage:link || true && \
-    php artisan serve --host=0.0.0.0 --port=$PORT
+# Démarrage Laravel (PAS de db:seed : le seeder est destructif)
+CMD php artisan migrate --force \
+    && (php artisan storage:link || true) \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache \
+    && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}

@@ -380,7 +380,7 @@ function handleFileSelection(fileList) {
     files.forEach(file => {
         // ── Validation type ──
         if (!ALLOWED_TYPES.includes(file.type)) {
-            rejects.push(`${file.name} : format non supporté`);
+            rejects.push(`${esc(file.name)} : format non supporté`);
             return;
         }
 
@@ -388,7 +388,7 @@ function handleFileSelection(fileList) {
         const isVideo = file.type.startsWith('video');
         const limit = isVideo ? UPLOAD_LIMITS.video : UPLOAD_LIMITS.image;
         if (file.size > limit) {
-            rejects.push(`${file.name} : dépasse ${formatSize(limit)}`);
+            rejects.push(`${esc(file.name)} : dépasse ${formatSize(limit)}`);
             return;
         }
 
@@ -654,13 +654,13 @@ function renderGrid(medias) {
 
                 ${m.type === 'video'
                     ? (m.url_thumbnail
-                        ? `<img src="${m.url_thumbnail}" alt="${m.nom||'Vidéo'}" style="width:100%;height:100%;object-fit:cover;">`
+                        ? `<img src="${esc(m.url_thumbnail)}" alt="${esc(m.nom||'Vidéo')}" style="width:100%;height:100%;object-fit:cover;">`
                         : `<div style="width:100%;height:100%;background:var(--bg-c2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
                                <i class="fa-solid fa-video" style="font-size:2rem;color:var(--text-d);"></i>
-                               <span style="font-size:.65rem;color:var(--text-d);">${(m.nom||'Vidéo').substring(0,20)}</span>
+                               <span style="font-size:.65rem;color:var(--text-d);">${esc((m.nom||'Vidéo').substring(0,20))}</span>
                            </div>`)
-                    : `<img src="${m.url_thumbnail||m.url}"
-                            alt="${m.nom||'Média'}"
+                    : `<img src="${esc(m.url_thumbnail||m.url)}"
+                            alt="${esc(m.nom||'Média')}"
                             style="width:100%;height:100%;object-fit:cover;"
                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
                         >
@@ -675,13 +675,13 @@ function renderGrid(medias) {
                         ${(m.nom||'').substring(0,28)}${(m.nom||'').length>28?'…':''}
                     </div>
                     <div style="display:flex;gap:6px;">
-                        <button onclick="event.stopPropagation();copyUrl('${m.url}')"
+                       <button onclick="event.stopPropagation();copyUrl(${esc(JSON.stringify(m.url))})"
                                 class="ab ab-view"
                                 style="width:auto;padding:4px 10px;font-size:.7rem;"
                                 title="Copier l'URL">
                             <i class="fa-solid fa-copy"></i>
                         </button>
-                        <button onclick="event.stopPropagation();confirmDelete('/api/v1/media/${m.id}','${(m.nom||'').replace(/'/g,"\\'")}')"
+                        <button onclick="event.stopPropagation();confirmDelete('/api/v1/media/${m.id}',${esc(JSON.stringify(m.nom||''))})"
                                 class="ab ab-del"
                                 title="Supprimer">
                             <i class="fa-solid fa-trash"></i>
@@ -709,19 +709,19 @@ function renderList(medias) {
             <td>
                 <div class="td-main">
                     ${m.type === 'image'
-                        ? `<img src="${m.url_thumbnail||m.url}"
+                        ? `<img src="${esc(m.url_thumbnail||m.url)}"
                                 class="td-thumb"
-                                alt="${m.nom||''}"
+                                alt="${esc(m.nom||'')}"
                                 onerror="this.style.display='none'">`
                         : (m.url_thumbnail
-                            ? `<img src="${m.url_thumbnail}" class="td-thumb" alt="${m.nom||''}">`
+                            ? `<img src="${esc(m.url_thumbnail)}" class="td-thumb" alt="${esc(m.nom||'')}">`
                             : `<div class="td-thumb" style="display:flex;align-items:center;justify-content:center;background:var(--bg-c2);">
                                    <i class="fa-solid fa-video" style="color:var(--text-d);"></i>
                                </div>`)
                     }
                     <div>
-                        <div class="td-name">${m.nom||'Sans nom'}</div>
-                        <div class="td-sub" style="font-family:var(--fm);font-size:.68rem;">${(m.url||'').substring(0,40)}…</div>
+                        <div class="td-name">${esc(m.nom||'Sans nom')}</div>
+                        <div class="td-sub" style="font-family:var(--fm);font-size:.68rem;">${esc((m.url||'').substring(0,40))}…</div>
                     </div>
                 </div>
             </td>
@@ -745,12 +745,12 @@ function renderList(medias) {
                         <i class="fa-solid fa-eye"></i>
                     </button>
                     <button class="ab ab-view"
-                            onclick="copyUrl('${m.url}')"
+                            onclick="copyUrl(${esc(JSON.stringify(m.url))})"
                             title="Copier l'URL">
                         <i class="fa-solid fa-copy"></i>
                     </button>
                     <button class="ab ab-del"
-                            onclick="confirmDelete('/api/v1/media/${m.id}','${(m.nom||'').replace(/'/g,"\\'")}')"
+                            onclick="confirmDelete('/api/v1/media/${m.id}',${esc(JSON.stringify(m.nom||''))})"
                             title="Supprimer">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -778,7 +778,7 @@ function renderMediaPag(d) {
 function openMediaDetail(m) {
     currentMedia = m;
     document.getElementById('mediaModalTitle').innerHTML =
-        `<i class="fa-solid fa-photo-film" style="color:var(--dy);margin-right:8px;"></i>${m.nom||'Détails'}`;
+        `<i class="fa-solid fa-photo-film" style="color:var(--dy);margin-right:8px;"></i>${esc(m.nom||'Détails')}`;
     document.getElementById('media-nom').value         = m.nom || '';
     document.getElementById('media-url-display').value = m.url || '';
     document.getElementById('media-type-info').textContent  = m.mime_type === 'video/external' ? (m.type || '—') + ' (lien externe)' : (m.type || '—');
@@ -790,18 +790,18 @@ function openMediaDetail(m) {
     if (m.type === 'video') {
         if (m.mime_type === 'video/external') {
             preview.innerHTML = m.url_thumbnail
-                ? `<img src="${m.url_thumbnail}" alt="${m.nom||''}" style="width:100%;height:100%;object-fit:cover;">`
+                ? `<img src="${esc(m.url_thumbnail)}" alt="${esc(m.nom||'')}" style="width:100%;height:100%;object-fit:cover;">`
                 : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
                        <i class="fa-solid fa-video" style="font-size:2.5rem;color:rgba(255,255,255,.15);"></i>
                    </div>`;
         } else {
             preview.innerHTML = `<video controls style="width:100%;height:100%;border-radius:8px;">
-                <source src="${m.url}">
+                <source src="${esc(m.url)}">
             </video>`;
         }
     } else {
-        preview.innerHTML = `<img src="${m.url}"
-            alt="${m.nom||''}"
+        preview.innerHTML = `<img src="${esc(m.url)}"
+            alt="${esc(m.nom||'')}"`
             style="width:100%;height:100%;object-fit:contain;"
             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;\\'>
                 <i class=\\'fa-solid fa-image-slash\\' style=\\'font-size:2rem;color:rgba(255,255,255,.15);\\'></i></div>')">`;

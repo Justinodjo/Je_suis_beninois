@@ -36,6 +36,11 @@ class CategoryController extends Controller
             'nom'         => 'required|string|max:255',
             'slug'        => 'nullable|string|unique:categories,slug',
             'description' => 'nullable|string',
+            'couleur'     => 'nullable|string|max:20',
+            'icone'       => 'nullable|string|max:50',
+            'ordre'       => 'nullable|integer',
+            'parent_id'   => 'nullable|exists:categories,id',
+            'statut'      => 'nullable|in:actif,inactif',
         ]);
 
         $validated['slug'] = $validated['slug'] ?? Str::slug($validated['nom']);
@@ -64,7 +69,16 @@ class CategoryController extends Controller
             'nom'         => 'sometimes|required|string|max:255',
             'slug'        => ['nullable', 'string', Rule::unique('categories', 'slug')->ignore($category->id)],
             'description' => 'nullable|string',
+            'couleur'     => 'nullable|string|max:20',
+            'icone'       => 'nullable|string|max:50',
+            'ordre'       => 'nullable|integer',
+            'parent_id'   => 'nullable|exists:categories,id',
+            'statut'      => 'nullable|in:actif,inactif',
         ]);
+        // slug vide : on conserve l'ancien (la colonne est NOT NULL)
+        if (array_key_exists('slug', $validated) && empty($validated['slug'])) {
+            unset($validated['slug']);
+        }
 
         $category->update($validated);
 

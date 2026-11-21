@@ -209,7 +209,7 @@ async function loadCategories() {
     const parentSel = document.getElementById('cat-parent');
     parentSel.innerHTML = '<option value="">Aucune (catégorie racine)</option>';
     cats.forEach(c => {
-        parentSel.innerHTML += `<option value="${c.id}">${c.icone||''} ${c.nom}</option>`;
+        parentSel.innerHTML += `<option value="${c.id}">${esc(c.icone||'')} ${esc(c.nom)}</option>`;
     });
 
     // Tableau
@@ -220,8 +220,8 @@ async function loadCategories() {
                 <div class="td-main">
                     <div style="width:8px;height:8px;border-radius:50%;background:${c.couleur||'#1B5E20'};flex-shrink:0;"></div>
                     <div>
-                        <div class="td-name">${c.icone ? c.icone+' ' : ''}${c.nom}</div>
-                        <div class="td-sub">${c.description||'Aucune description'}</div>
+                        <div class="td-name">${c.icone ? esc(c.icone)+' ' : ''}${esc(c.nom)}</div>
+                        <div class="td-sub">${esc(c.description||'Aucune description')}</div>
                     </div>
                 </div>
             </td>
@@ -240,7 +240,7 @@ async function loadCategories() {
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button class="ab ab-del"
-                            onclick="confirmDelete('/api/v1/categories/${c.id}','${c.nom.replace(/'/g,"\\'")}')"
+                            onclick="confirmDelete('/api/v1/categories/${c.id}',${esc(JSON.stringify(c.nom))})"
                             title="Supprimer">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -267,7 +267,7 @@ async function loadTags() {
     document.getElementById('tagsCloud').innerHTML = tags.map(t => `
         <span style="padding:5px 12px;border-radius:20px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.2);color:var(--dy);font-size:${Math.max(0.72,Math.min(1.1,0.72+(t.nb_utilisation||t.articles_count||0)/20))}rem;cursor:pointer;"
               onclick="editTag(${JSON.stringify(t).replace(/"/g,'&quot;')})">
-            <i class="fa-solid fa-hashtag" style="font-size:.65em;opacity:.7;"></i>${t.nom}
+            <i class="fa-solid fa-hashtag" style="font-size:.65em;opacity:.7;"></i>${esc(t.nom)}
             <span style="font-size:.62rem;opacity:.6;">${t.nb_utilisation||t.articles_count||0}</span>
         </span>
     `).join('') || '<span style="color:var(--text-d);font-size:.8rem;">Aucun tag</span>';
@@ -280,7 +280,7 @@ async function loadTags() {
             <tr>
                 <td>
                     <span class="td-name">
-                        <i class="fa-solid fa-hashtag" style="color:var(--text-d);font-size:.75em;margin-right:2px;"></i>${t.nom}
+                        <i class="fa-solid fa-hashtag" style="color:var(--text-d);font-size:.75em;margin-right:2px;"></i>${esc(t.nom)}
                     </span>
                 </td>
                 <td>
@@ -299,7 +299,7 @@ async function loadTags() {
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                         <button class="ab ab-del"
-                                onclick="confirmDelete('/api/v1/tags/${t.id}','#${t.nom}')"
+                                onclick="confirmDelete('/api/v1/tags/${t.id}',${esc(JSON.stringify(t.nom))})"
                                 title="Supprimer">
                             <i class="fa-solid fa-trash"></i>
                         </button>
@@ -371,7 +371,7 @@ function editCategory(cat) {
     document.getElementById('cat-desc').value              = cat.description || '';
     document.getElementById('cat-parent').value            = cat.parent_id || '';
     document.getElementById('catModalTitle').innerHTML     =
-        `<i class="fa-solid fa-pen-to-square" style="color:var(--dy);margin-right:8px;"></i>Modifier : ${cat.nom}`;
+        `<i class="fa-solid fa-pen-to-square" style="color:var(--dy);margin-right:8px;"></i>Modifier : ${esc(cat.nom)}`;
     updateCatPreview();
     openModal('catModal');
 }
@@ -405,7 +405,7 @@ function editTag(tag) {
     document.getElementById('tag-id').value  = tag.id;
     document.getElementById('tag-nom').value = tag.nom;
     document.getElementById('tagModalTitle').innerHTML =
-        `<i class="fa-solid fa-pen-to-square" style="color:var(--dy);margin-right:8px;"></i>Modifier : #${tag.nom}`;
+        `<i class="fa-solid fa-pen-to-square" style="color:var(--dy);margin-right:8px;"></i>Modifier : #${esc(tag.nom)}`;
     openModal('tagModal');
 }
 

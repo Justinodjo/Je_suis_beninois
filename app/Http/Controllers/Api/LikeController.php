@@ -14,6 +14,7 @@ class LikeController extends Controller
      */
     public function toggle(Article $article)
     {
+        abort_if($article->statut !== 'publié', 404);
         $userId = auth('api')->id();
 
         return DB::transaction(function () use ($article, $userId) {

@@ -411,7 +411,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async function(
        const data = await res.json();
 
 if (res.ok) {
-    localStorage.setItem('auth_token', data.access_token);
+    localStorage.setItem('auth_token', data.token);
 
     window.location.href = '/dashboard';
 } else {
@@ -443,7 +443,7 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': csrfToken(),
             },
-            body: JSON.stringify({ name, email, password, password_confirmation, role: 'visiteur', statut: 'actif' })
+            body: JSON.stringify({ name, email, password, password_confirmation })
         });
         const data = await res.json();
 
@@ -456,7 +456,7 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
         }
 
         // 2. Connexion avec session web
-        const loginRes  = await fetch('/web/login', {
+        const loginRes  = await fetch('/api/v1/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

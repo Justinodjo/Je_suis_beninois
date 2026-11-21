@@ -22,7 +22,7 @@ class TagController extends Controller
 
         // Si per_page=0 ou absent on peut tout retourner pour les dropdowns
         if ($request->filled('per_page')) {
-            $tags = $query->orderByDesc('articles_count')->paginate((int) $request->per_page);
+            $tags = $query->orderByDesc('articles_count')->paginate(min(max((int) $request->per_page, 1), 100));
         } else {
             $tags = $query->orderByDesc('articles_count')->get();
         }
@@ -45,6 +45,7 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
+        $this->normalizeNom($request);
         $validated = $request->validate([
             'nom' => 'required|string|max:100|unique:tags,nom',
         ]);
@@ -69,6 +70,7 @@ class TagController extends Controller
      */
     public function update(Request $request, Tag $tag)
     {
+        $this->normalizeNom($request);
         $validated = $request->validate([
             'nom' => 'sometimes|required|string|max:100|unique:tags,nom,' . $tag->id,
         ]);
@@ -76,11 +78,24 @@ class TagController extends Controller
         if (isset($validated['nom'])) {
             $validated['nom']  = strtolower(trim($validated['nom']));
             $validated['slug'] = Str::slug($validated['nom']);
+
+            
+            if (Tag::where('slug', $validated['slug'])->where('id', '!=', $tag->id)->exists()) {
+                $validated['slug'] .= '-' . Str::lower(Str::random(4));
+            }
         }
 
         $tag->update($validated);
 
         return response()->json($tag);
+    }
+
+        /** Normalise AVANT validation pour que la règle unique voie la vraie valeur. */
+    private function normalizeNom(Request $request): void
+    {
+        if ($request->has('nom')) {
+            $request->merge(['nom' => strtolower(trim((string) $request->input('nom')))]);
+        }
     }
 
     /**

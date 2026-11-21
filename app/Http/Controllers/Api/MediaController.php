@@ -50,13 +50,7 @@ class MediaController extends Controller
                 'required',
                 'file',
                 'max:10240',
-                function ($attribute, $value, $fail) {
-                    $ext = strtolower($value->getClientOriginalExtension());
-                    $allowed = ['jpeg','png','jpg','gif','webp','mp4','mov','avi'];
-                    if (! in_array($ext, $allowed)) {
-                        $fail('Format de fichier non autorisé.');
-                    }
-                },
+                'mimes:jpeg,png,jpg,gif,webp,mp4,mov,avi',
             ],
             'nom'  => 'nullable|string|max:255',
             'type' => 'nullable|in:image,video',
@@ -64,13 +58,13 @@ class MediaController extends Controller
 
         $file     = $request->file('fichier');
         $isVideo  = $file->getMimeType() && str_starts_with($file->getMimeType(), 'video');
-        $typeMedia = $request->input('type', $isVideo ? 'video' : 'image');
+         $typeMedia = $isVideo ? 'video' : 'image';
 
         // ✅ Dossier selon le type
         $folder   = $isVideo ? 'videos/articles' : 'images/articles';
 
         // ✅ Nom de fichier unique + nettoyé
-        $extension = $file->getClientOriginalExtension();
+        $extension = $file->extension(); // déduite du contenu, pas du nom client
         $filename  = time() . '_' . Str::random(8) . '.' . $extension;
 
         // ✅ Stockage dans storage/app/public/
@@ -115,6 +109,10 @@ class MediaController extends Controller
      */
     public function update(Request $request, Media $media)
     {
+
+       if ($denied = $this->denyUnlessOwner($media)) {
+            return $denied;
+        }
         $validated = $request->validate([
             'nom' => 'sometimes|required|string|max:255',
         ]);
@@ -129,6 +127,10 @@ class MediaController extends Controller
      */
    public function destroy(Media $media)
 {
+       if ($denied = $this->denyUnlessOwner($media)) {
+            return $denied;
+        }
+
     // Uniquement si un fichier a réellement été stocké localement (pas une vidéo externe)
     if ($media->mime_type !== 'video/external') {
         if ($media->chemin && Storage::disk('public')->exists($media->chemin)) {
@@ -149,6 +151,21 @@ class MediaController extends Controller
 
     return response()->json(['message' => 'Média supprimé']);
 }
+
+    /**
+     * Un contributeur ne gère que ses médias ; l'admin gère tout.
+     */
+    private function denyUnlessOwner(Media $media): ?\Illuminate\Http\JsonResponse
+    {
+        $user = auth('api')->user();
+
+        if ($user->role !== 'admin' && $media->user_id !== $user->id) {
+            return response()->json(['message' => 'Non autorisé'], 403);
+        }
+
+        return null;
+    }
+
 
     /**
      * ✅ Créer une miniature 300×300 sans dépendance externe (GD natif PHP)
@@ -238,6 +255,10 @@ class MediaController extends Controller
             'message' => 'Lien non reconnu. Formats supportés : YouTube, Vimeo.',
         ], 422);
     }
+    // URL canonique reconstruite : on ne stocke jamais l'URL brute fournie
+    $canonicalUrl = $provider === 'youtube'
+        ? "https://www.youtube.com/watch?v={$videoId}"
+        : "https://vimeo.com/{$videoId}";
 
     $thumbnail = match ($provider) {
         'youtube' => "https://img.youtube.com/vi/{$videoId}/hqdefault.jpg",
@@ -248,7 +269,7 @@ class MediaController extends Controller
     $media = Media::create([
         'nom'           => $request->input('nom', 'Vidéo ' . ucfirst($provider)),
         'type'          => 'video',
-        'url'           => $request->input('url'),
+        'url'           => $canonicalUrl,
         'url_thumbnail' => $thumbnail,
         'chemin'        => null,              // pas de fichier local
         'mime_type'     => 'video/external',  // marqueur pour la suppression
@@ -260,10 +281,10 @@ class MediaController extends Controller
 
 private function parseVideoUrl(string $url): array
 {
-    if (preg_match('#(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([A-Za-z0-9_-]{11})#', $url, $m)) {
+    if (preg_match('#^https?://(?:www\.|m\.)?(?:youtube\.com/(?:watch\?v=|embed/)|youtu\.be/)([A-Za-z0-9_-]{11})(?:[&?\#/].*)?$#', $url, $m)) {
         return ['youtube', $m[1]];
     }
-    if (preg_match('#vimeo\.com/(\d+)#', $url, $m)) {
+    if (preg_match('#^https?://(?:www\.|m\.)?vimeo\.com/(\d+)#', $url, $m)) {
         return ['vimeo', $m[1]];
     }
     return [null, null];

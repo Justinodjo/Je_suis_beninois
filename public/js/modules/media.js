@@ -82,17 +82,19 @@ class MediaManager {
             });
         }
     }
-
+    esc(v) {
+        return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
     createMediaCard(media) {
         const div = document.createElement('div');
         div.className = 'media-library-item';
         
         const url = media.url || media.url_thumbnail;
         const content = media.type === 'video'
-            ? '<img src="' + url + '" alt="Vidéo"><div class="video-overlay"><span class="play-btn">▶️</span></div>'
-            : '<img src="' + url + '" alt="' + (media.titre || '') + '">';
+                        ? '<img src="' + this.esc(url) + '" alt="Vidéo"><div class="video-overlay"><span class="play-btn">▶️</span></div>'
+            : '<img src="' + this.esc(url) + '" alt="' + this.esc(media.titre || '') + '">';
         
-        div.innerHTML = '<div class="media-library-preview">' + content + '<span class="media-library-type">' + (media.type || 'image').toUpperCase() + '</span><div class="media-library-actions"><button class="media-action-btn download" title="Télécharger">⬇️</button><button class="media-action-btn delete" title="Supprimer">🗑️</button></div></div><div class="media-library-info"><div class="media-library-name" title="' + (media.titre || 'Sans titre') + '">' + (media.titre || 'Sans titre') + '</div><div class="media-library-size">' + this.formatFileSize(media.taille || 0) + '</div><div class="media-library-date">' + this.formatDate(media.created_at) + '</div></div>';
+        div.innerHTML = '<div class="media-library-preview">' + content + '<span class="media-library-type">' + (media.type || 'image').toUpperCase() + '</span><div class="media-library-actions"><button class="media-action-btn download" title="Télécharger">⬇️</button><button class="media-action-btn delete" title="Supprimer">🗑️</button></div></div><div class="media-library-info"><div class="media-library-name" title="' + this.esc((media.titre || 'Sans titre')) + '">' + this.esc((media.titre || 'Sans titre')) + '</div><div class="media-library-size">' + this.formatFileSize(media.taille || 0) + '</div><div class="media-library-date">' + this.formatDate(media.created_at) + '</div></div>';
         
         const btnDownload = div.querySelector('.download');
         const btnDelete = div.querySelector('.delete');

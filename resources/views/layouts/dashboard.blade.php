@@ -272,6 +272,9 @@
 | CONFIGURATION JWT
 |--------------------------------------------------------------------------
 */
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 const API_BASE_URL = '/api/v1';
 

@@ -132,15 +132,15 @@ class ArticlesManager {
             const media = article.medias[0];
             const url = media.url || media.url_thumbnail;
             if (media.type === 'video') {
-                mediaHTML = '<div class="media-thumbnail-container"><img class="article-media-thumbnail" src="' + url + '" alt="Vidéo"><span class="media-play-icon">▶️</span></div>';
+                mediaHTML = '<div class="media-thumbnail-container"><img class="article-media-thumbnail" src="' + this.esc(url) + '" alt="Vidéo"><span class="media-play-icon">▶️</span></div>';
             } else {
-                mediaHTML = '<img class="article-media-thumbnail" src="' + url + '" alt="' + (media.titre || '') + '">';
+                mediaHTML = '<img class="article-media-thumbnail" src="' + this.esc(url) + '" alt="' + (media.titre || '') + '">';
             }
         }
         
         const userName = article.user ? article.user.name : 'Utilisateur';
         
-        row.innerHTML = '<td><span class="article-id">#' + article.id + '</span></td><td>' + mediaHTML + '</td><td><div><p class="article-title">' + this.truncate(article.titre, 50) + '</p><p class="article-excerpt">' + this.truncate(article.extrait || '', 60) + '</p></div></td><td><span class="article-author">' + userName + '</span></td><td><span class="type-badge">' + article.type + '</span></td><td><span class="status-badge status-' + article.statut + '">' + article.statut + '</span></td><td><div class="article-stats"><span title="Vues">👁️ ' + (article.nb_vues || 0) + '</span><span title="Likes">❤️ ' + (article.nb_likes || 0) + '</span><span title="Commentaires">💬 ' + (article.nb_commentaires || 0) + '</span></div></td><td><div class="action-buttons"><button class="btn btn-edit" data-id="' + article.id + '">✏️</button><button class="btn btn-delete" data-id="' + article.id + '">🗑️</button></div></td>';
+        row.innerHTML = '<td><span class="article-id">#' + article.id + '</span></td><td>' + mediaHTML + '</td><td><div><p class="article-title">' + this.truncate(article.titre, 50) + '</p><p class="article-excerpt">' + this.truncate(article.extrait || '', 60) + '</p></div></td><td><span class="article-author">' + this.esc(userName) + '</span></td><td><span class="type-badge">' + this.esc(article.type) + '</span></td><td><span class="status-badge status-' + this.esc(article.statut) + '">' + this.esc(article.statut) + '</span></td><td><div class="article-stats"><span title="Vues">👁️ ' + (article.nb_vues || 0) + '</span><span title="Likes">❤️ ' + (article.nb_likes || 0) + '</span><span title="Commentaires">💬 ' + (article.nb_commentaires || 0) + '</span></div></td><td><div class="action-buttons"><button class="btn btn-edit" data-id="' + article.id + '">✏️</button><button class="btn btn-delete" data-id="' + article.id + '">🗑️</button></div></td>';
         
         const btnEdit = row.querySelector('.btn-edit');
         const btnDelete = row.querySelector('.btn-delete');
@@ -311,10 +311,14 @@ class ArticlesManager {
             if (window.UI) window.UI.hideLoading();
         }
     }
-
+    esc(v) {
+        return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
     truncate(text, length) {
         if (!text) return '';
-        return text.length <= length ? text : text.substring(0, length) + '...';
+            const t = text.length <= length ? text : text.substring(0, length) + '...';
+        return this.esc(t);
+
     }
 
     generateSlug(text) {

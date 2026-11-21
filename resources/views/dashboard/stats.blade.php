@@ -264,7 +264,7 @@ function renderTopCategories(cats, articles) {
             <div style="display:flex;align-items:center;justify-content:space-between;font-size:.78rem;margin-bottom:5px;">
                 <span style="display:flex;align-items:center;gap:6px;">
                     <div style="width:8px;height:8px;border-radius:50%;background:${c.couleur||'var(--dv-l)'}"></div>
-                    <span style="color:var(--text-m);">${c.nom}</span>
+                    <span style="color:var(--text-m);">${esc(c.nom)}</span>
                 </span>
                 <span style="color:var(--text-d);font-family:var(--fm);">${c.count} articles · ${(c.vues||0).toLocaleString()} vues</span>
             </div>

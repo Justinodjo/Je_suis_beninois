@@ -15,6 +15,12 @@ class ContactController extends Controller
 
     public function store(Request $request)
     {
+
+        // Honeypot : un humain ne remplit jamais ce champ caché
+        if ($request->filled('website')) {
+            return redirect()->route('contact')->with('success', 'Votre message a bien été envoyé, merci !');
+        }
+
         $validated = $request->validate([
             'nom'     => 'required|string|max:120',
             'email'   => 'required|email|max:180',

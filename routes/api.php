@@ -21,9 +21,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('/register', [UserController::class, 'store'])->middleware('throttle:3,10');
 
-   Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
     Route::post('/refresh', [AuthController::class, 'refresh']);
- Route::middleware('throttle:60,1')->group(function () {
+ Route::middleware(['auth.optional', 'throttle:60,1'])->group(function () {
         Route::get('/articles', [ArticleController::class, 'index']);
         Route::get('/articles/{article}', [ArticleController::class, 'show']);
         Route::get('/categories', [CategoryController::class, 'index']);
@@ -88,9 +88,4 @@ Route::prefix('v1')->group(function () {
                 ->only(['index', 'show', 'update', 'destroy']);
         });
     });
-});
-
-// Route de test
-Route::get('/exemple', function () {
-    return response()->json(['message' => 'Bonjour, le monde !']);
 });

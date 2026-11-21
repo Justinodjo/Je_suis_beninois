@@ -23,10 +23,25 @@ class ArticleController extends Controller
         ]);
 
         // ── Filtres ──────────────────────────────────────────────
-        if ($request->filled('statut')) {
-            $query->where('statut', $request->statut);
-        } elseif (! auth()->check()) {
-            // Visiteurs non authentifiés : seulement les publiés
+        $user      = auth('api')->user();
+        $actif     = $user && $user->statut === 'actif';
+        $isAdmin   = $actif && $user->role === 'admin';
+        $isContrib = $actif && $user->role === 'contributeur';
+
+        if ($isAdmin) {
+            if ($request->filled('statut')) {
+                $query->where('statut', $request->statut);
+            }
+        } elseif ($isContrib) {
+            // Contributeur : tous les publiés + ses propres brouillons/archives
+            $query->where(function ($q) use ($user) {
+                $q->where('statut', 'publié')->orWhere('user_id', $user->id);
+            });
+            if ($request->filled('statut')) {
+                $query->where('statut', $request->statut);
+            }
+        } else {
+            // Anonyme / visiteur : le paramètre ?statut= est ignoré
             $query->where('statut', 'publié');
         }
 
@@ -63,12 +78,19 @@ class ArticleController extends Controller
     public function show(Article $article)
     {
         // Vérifier que l'article est publié pour les non-authentifiés
-        if ($article->statut !== 'publié' && ! auth()->check()) {
+        $user   = auth('api')->user();
+        $canSee = $user && $user->statut === 'actif'
+            && ($user->role === 'admin' || ($user->role === 'contributeur' && $user->id === $article->user_id));
+
+        if ($article->statut !== 'publié' && ! $canSee) {
             return response()->json(['message' => 'Article non trouvé'], 404);
         }
 
         $article->load(['user:id,name,avatar', 'categories', 'tags', 'medias']);
-        $article->increment('nb_vues');
+       
+       if ($article->statut === 'publié') {
+            $article->increment('nb_vues');
+        }
 
         return response()->json(['data' => $article]);
     }
@@ -85,7 +107,7 @@ class ArticleController extends Controller
             'contenu'      => 'required|string',
             'statut'       => ['required', Rule::in(['brouillon', 'publié', 'archivé'])],
             // ✅ Types alignés avec le select du modal Blade
-            'type'         => ['required', Rule::in(['article', 'tradition', 'patrimoine', 'interview', 'featured', 'galerie'])],
+            'type'         => ['required', Rule::in(['article', 'tradition', 'patrimoine', 'interview', 'featured', 'galerie', 'video'])],
             'categories'   => 'nullable|array',
             'categories.*' => 'exists:categories,id',
             'tags'         => 'nullable|array',
@@ -143,7 +165,7 @@ class ArticleController extends Controller
             'extrait'      => 'nullable|string|max:500',
             'contenu'      => 'sometimes|required|string',
             'statut'       => ['sometimes', Rule::in(['brouillon', 'publié', 'archivé'])],
-            'type'         => ['sometimes', Rule::in(['article', 'tradition', 'patrimoine', 'interview', 'featured', 'galerie'])],
+            'type'         => ['sometimes', Rule::in(['article', 'tradition', 'patrimoine', 'interview', 'featured', 'galerie', 'video'])],
             'categories'   => 'nullable|array',
             'categories.*' => 'exists:categories,id',
             'tags'         => 'nullable|array',

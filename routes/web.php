@@ -43,6 +43,7 @@ Route::get('/contact', [ContactController::class, 'index'])
     ->name('contact');
 
 Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:5,10')
     ->name('contact.store');
 
 // Financer
@@ -126,8 +127,6 @@ Route::prefix('dashboard')
         Route::get('/categories', [DashboardController::class, 'categories'])
             ->name('categories');
 
-        Route::get('/tags', [DashboardController::class, 'tags'])
-            ->name('tags');
 
         Route::get('/media', [DashboardController::class, 'media'])
             ->name('media');

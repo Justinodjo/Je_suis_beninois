@@ -142,21 +142,21 @@ function renderArticles(articles) {
         <tr>
             <td>
                 <div class="td-main">
-                    <div class="td-name">${(a.titre||'').substring(0,50)}${(a.titre||'').length>50?'…':''}</div>
+                    <div class="td-name">${esc((a.titre||'').substring(0,50))}${(a.titre||'').length>50?'…':''}</div>
                 </div>
             </td>
             <td>
                 <span style="display:inline-flex;align-items:center;gap:4px;">
-                    ${typeIcons[a.type]||typeIcons.article} ${a.type||'article'}
+                    ${typeIcons[a.type]||typeIcons.article} ${esc(a.type||'article')}
                 </span>
             </td>
             <td>
                 <span style="display:inline-flex;align-items:center;gap:4px;">
-                    ${statutIcons[a.statut]||statutIcons.brouillon} ${a.statut||'brouillon'}
+                   ${statutIcons[a.statut]||statutIcons.brouillon} ${esc(a.statut||'brouillon')}
                 </span>
             </td>
             <td style="font-size:.75rem;color:var(--text-d);">
-                ${(a.categories||[]).map(c=>c.nom).join(', ') || '—'}
+                ${(a.categories||[]).map(c=>esc(c.nom)).join(', ') || '—'}
             </td>
             <td style="font-family:var(--fm);font-size:.78rem;">${(a.nb_vues||0).toLocaleString()}</td>
             <td style="font-family:var(--fm);font-size:.78rem;">${a.nb_likes||0}</td>
@@ -165,13 +165,13 @@ function renderArticles(articles) {
             </td>
             <td>
                 <div class="td-actions">
-                    <button class="ab ab-view" onclick="window.open('/culture/article/${a.slug}','_blank')" title="Voir">
+                    <button class="ab ab-view" onclick="window.open('/culture/article/${encodeURIComponent(a.slug)}','_blank')" title="Voir">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                     <button class="ab ab-edit" onclick="editArticle(${a.id})" title="Modifier">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
-                    <button class="ab ab-del" onclick="confirmDelete('/api/v1/articles/${a.id}','${(a.titre||'').replace(/'/g,"\\'")}')" title="Supprimer">
+                    <button class="ab ab-del" onclick="confirmDelete('/api/v1/articles/${a.id}','${encodeURIComponent((a.titre||'').replace(/'/g,"\\'"))}')" title="Supprimer">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>

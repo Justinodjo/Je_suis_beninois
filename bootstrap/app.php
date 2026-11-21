@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ]);
 
         $middleware->alias([
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'auth.optional' => \App\Http\Middleware\OptionalJwtAuth::class,
         'role'       => \App\Http\Middleware\RoleMiddleware::class,
         'auth.modal' => \App\Http\Middleware\AuthModal::class,
         'contributeur' => \App\Http\Middleware\ContributeurMiddleware::class,

@@ -223,9 +223,7 @@ registerForm.addEventListener('submit', async function(event) {
                 name,
                 email,
                 password,
-                password_confirmation,
-                role: 'visiteur',
-                statut: 'actif'
+                password_confirmation
             })
         });
 
@@ -247,9 +245,7 @@ registerForm.addEventListener('submit', async function(event) {
         successDiv.textContent   = 'Compte créé avec succès. Un email de bienvenue vous a été envoyé. Redirection...';
         successDiv.style.display = 'block';
 
-        if (data.access_token) {
-            localStorage.setItem('auth_token', data.access_token);
-        }
+
 
         setTimeout(() => {
             window.location.href = '{{ route('login') }}';

@@ -282,7 +282,7 @@ async function addModalExternalVideo() {
 async function loadModalFilters() {
     const [cats, tags] = await Promise.all([
         apiFetch('/api/v1/categories').then(r=>r.json()).catch(()=>({data:[]})),
-        apiFetch('/api/v1/tags').then(r=>r.json()).catch(()=>({data:[]})),
+        apiFetch('/api/v1/tags?per_page=100').then(r=>r.json()).catch(()=>({data:[]})),
     ]);
 
     const catEl = document.getElementById('catCheckboxes');
@@ -291,7 +291,7 @@ async function loadModalFilters() {
                onmouseover="this.style.borderColor='var(--dv-l)'"
                onmouseout="if(!this.querySelector('input').checked)this.style.borderColor='var(--border)'">
             <input type="checkbox" name="art-cats" value="${c.id}" style="accent-color:var(--dv-l);">
-            ${c.icone ? c.icone+' ' : ''}${c.nom}
+            ${c.icone ? esc(c.icone)+' ' : ''}${esc(c.nom)}
         </label>
     `).join('') || '<div style="color:var(--text-d);font-size:.78rem;">Aucune catégorie</div>';
 
@@ -299,7 +299,7 @@ async function loadModalFilters() {
     tagEl.innerHTML = (tags.data||tags||[]).map(t=>`
         <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.72rem;color:var(--text-m);padding:2px 8px;border-radius:12px;border:1px solid var(--border);transition:all .15s;">
             <input type="checkbox" name="art-tags" value="${t.id}" style="accent-color:var(--dv-l);">
-            #${t.nom}
+            #${esc(t.nom)}
         </label>
     `).join('') || '<div style="color:var(--text-d);font-size:.78rem;">Aucun tag</div>';
 }
@@ -315,11 +315,11 @@ async function loadMediaPicker() {
             <div class="m-item" onclick="toggleMedia(this,${m.id})" data-media-id="${m.id}">
                 ${m.type === 'video'
                     ? (m.url_thumbnail
-                        ? `<img src="${fixMediaUrl(m.url_thumbnail)}" alt="${m.nom||'Vidéo'}">`
+                        ? `<img src="${fixMediaUrl(m.url_thumbnail)}" alt="${esc(m.nom||'Vidéo')}">`
                         : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-c2);">
                                <i class="fa-solid fa-video" style="font-size:1.5rem;color:var(--text-d);"></i>
                            </div>`)
-                    : `<img src="${fixMediaUrl(m.url)}" alt="${m.nom||'Média'}"
+                    : `<img src="${fixMediaUrl(m.url)}" alt="${esc(m.nom||'Vidéo')}"
                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:var(--bg-c2);">
                            <i class="fa-solid fa-image-slash" style="color:var(--text-d);"></i>
@@ -461,6 +461,11 @@ function resetForm() {
     document.getElementById('slug-preview').textContent = '';
     switchTab('info');
 }
-
-loadModalFilters();
+document.addEventListener('DOMContentLoaded', () => {
+    loadModalFilters().catch(() => {
+        const msg = '<div style="color:var(--text-d);font-size:.78rem;">Impossible de charger la liste — rechargez la page.</div>';
+        document.getElementById('catCheckboxes').innerHTML = msg;
+        document.getElementById('tagCheckboxes').innerHTML = msg;
+    });
+});
 </script>

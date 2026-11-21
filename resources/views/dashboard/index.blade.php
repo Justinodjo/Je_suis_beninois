@@ -232,7 +232,7 @@ function loadRecentArticles(articles) {
         <tr>
             <td>
                 <div class="td-main">
-                    <div class="td-name">${(a.titre||'').substring(0,45)}${(a.titre||'').length>45?'…':''}</div>
+                    <div class="td-name">${esc((a.titre||'').substring(0,45))}${(a.titre||'').length>45?'…':''}</div>
                 </div>
             </td>
             <td>
@@ -248,13 +248,13 @@ function loadRecentArticles(articles) {
             <td style="font-family:var(--fm);font-size:.78rem;">${(a.nb_vues||0).toLocaleString()}</td>
             <td>
                 <div class="td-actions">
-                    <button class="ab ab-view" onclick="window.open('/culture/article/${a.slug}','_blank')" title="Voir">
+                    <button class="ab ab-view" onclick="window.open('/culture/article/${encodeURIComponent(a.slug)}','_blank')" title="Voir">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                     <button class="ab ab-edit" onclick="editArticle(${a.id})" title="Modifier">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
-                    <button class="ab ab-del" onclick="confirmDelete('/api/v1/articles/${a.id}','${(a.titre||'').replace(/'/g,"\\'")}')">
+                    <button class="ab ab-del" onclick="confirmDelete('/api/v1/articles/${a.id}',${esc(JSON.stringify(a.titre||''))})">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>

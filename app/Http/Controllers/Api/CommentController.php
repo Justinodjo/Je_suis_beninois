@@ -78,9 +78,16 @@ class CommentController extends Controller
                 ]),
             ],
         ]);
-
+        $wasApproved = $comment->statut === 'approuvé';
         $comment->update($validated);
+        $isApproved = $comment->statut === 'approuvé';
 
+        // nb_commentaires ne compte que les commentaires approuvés
+        if ($wasApproved !== $isApproved) {
+            $isApproved
+                ? $comment->article()->increment('nb_commentaires')
+                : $comment->article()->where('nb_commentaires', '>', 0)->decrement('nb_commentaires');
+        }
         return response()->json([
             'message' => 'Commentaire mis à jour avec succès',
             'data' => $comment->load([
@@ -95,6 +102,10 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
+        if ($comment->statut === 'approuvé') {
+            $comment->article()->where('nb_commentaires', '>', 0)->decrement('nb_commentaires');
+        }
+
         $comment->delete();
 
         return response()->json([
@@ -108,6 +119,7 @@ class CommentController extends Controller
  */
 public function store(Request $request, Article $article)
 {
+    abort_if($article->statut !== 'publié', 404);
     $validated = $request->validate([
         'contenu' => 'required|string|max:1000',
     ]);
@@ -118,7 +130,7 @@ public function store(Request $request, Article $article)
         'statut'  => 'en_attente',
     ]);
 
-    $article->increment('nb_commentaires');
+   
 
     return response()->json([
         'message' => 'Commentaire envoyé, en attente de modération.',

@@ -333,11 +333,11 @@ function renderUsers(users) {
             <td>
                 <div class="td-main">
                     <div style="width:38px;height:38px;border-radius:50%;background:var(--dv);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0;border:2px solid ${roleColors[u.role]||'transparent'};">
-                        ${initials}
+                        ${esc(initials)}
                     </div>
                     <div>
-                        <div class="td-name">${u.name}</div>
-                        <div class="td-sub" style="font-family:var(--fm);">${u.email}</div>
+                        <div class="td-name">${esc(u.name)}</div>
+                        <div class="td-sub" style="font-family:var(--fm);">${esc(u.email)}</div>
                     </div>
                 </div>
             </td>
@@ -355,13 +355,13 @@ function renderUsers(users) {
             <td style="font-family:var(--fm);font-size:.75rem;color:var(--text-d);">${lastCon}</td>
             <td>
                 <div class="td-actions">
-                    <button class="ab ab-edit" onclick="openQuickRole(${u.id},'${u.name.replace(/'/g,"\\'")}','${u.role}','${u.statut||'actif'}')" title="Changer rôle/statut">
+                    <button class="ab ab-edit" onclick="openQuickRole(${u.id},${esc(JSON.stringify(u.name))},'${u.role}','${u.statut||'actif'}')" title="Changer rôle/statut">
                         <i class="fa-solid fa-shield-halved"></i>
                     </button>
                     <button class="ab ab-edit" onclick="editUser(${JSON.stringify(u).replace(/"/g,'&quot;')})" title="Modifier">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
-                    <button class="ab ab-del" onclick="confirmDelete('/api/v1/users/${u.id}','${u.name.replace(/'/g,"\\'")}')" title="Supprimer">
+                    <button class="ab ab-del" onclick="confirmDelete('/api/v1/users/${u.id}',${esc(JSON.stringify(u.name))})" title="Supprimer">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -489,7 +489,7 @@ function editUser(u) {
     document.getElementById('userModalError').style.display     = 'none';
 
     document.getElementById('userModalTitle').innerHTML =
-        `<i class="fa-solid fa-user-pen" style="color:var(--dy);margin-right:8px;"></i>Modifier : ${u.name}`;
+        `<i class="fa-solid fa-user-pen" style="color:var(--dy);margin-right:8px;"></i>Modifier : ${esc(u.name)}`;
 
     updateAvatarPreview();
     updateRoleHint();

@@ -39,15 +39,23 @@
                     </svg>
                 </button>
 
-                @auth
-                    <a href="{{ route('dashboard.index') }}" class="btn btn-primary" style="font-size:.82rem;padding:8px 18px;">
-                        <i class="fa-solid fa-gauge-high"></i>
-                        Dashboard
-                    </a>
-                @else
+                {{-- Visiteur (affiché par défaut) --}}
+                <span id="header-guest" style="display:contents;">
                     <a href="{{ route('login') }}" class="btn btn-login">Se connecter</a>
                     <a href="{{ route('register') }}" class="btn btn-secondary">S'inscrire</a>
-                @endauth
+                +                </span>
++
++                {{-- Utilisateur connecté (rempli par public/js/header-auth.js via le JWT) --}}
++                <span id="header-user" style="display:none;align-items:center;gap:10px;">
++                    <a href="{{ route('dashboard.index') }}" id="header-dashboard" class="btn btn-primary"
++                       style="display:none;font-size:.82rem;padding:8px 18px;">
++                        <i class="fa-solid fa-gauge-high"></i> Dashboard
++                    </a>
++                    <span id="header-username" style="font-weight:600;"></span>
++                    <button type="button" id="header-logout" class="btn btn-secondary"
++                            style="font-size:.82rem;padding:8px 18px;">Déconnexion</button>
++                </span>
++                <script src="{{ asset('js/header-auth.js') }}"></script>
 
                 <button class="nav-burger" onclick="openMobileNav()">
                     <i class="fa-solid fa-bars"></i>
