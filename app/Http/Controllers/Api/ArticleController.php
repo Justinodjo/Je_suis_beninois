@@ -108,7 +108,7 @@ class ArticleController extends Controller
             'statut'       => ['required', Rule::in(['brouillon', 'publié', 'archivé'])],
             // ✅ Types alignés avec le select du modal Blade
             'type'         => ['required', Rule::in(['article', 'tradition', 'patrimoine', 'interview', 'featured', 'galerie', 'video'])],
-            'categories'   => 'nullable|array',
+            'categories'   => 'required|array|min:1',
             'categories.*' => 'exists:categories,id',
             'tags'         => 'nullable|array',
             'tags.*'       => 'exists:tags,id',
