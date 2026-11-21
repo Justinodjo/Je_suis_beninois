@@ -15,11 +15,6 @@ class ContributionController extends Controller
 
     public function index()
     {
-        // Vérifier que c'est un contributeur
-        if (auth()->user()->role !== 'contributeur') {
-            abort(403, 'Accès non autorisé');
-        }
-
         return view('pages.contribution.index');
     }
 }
