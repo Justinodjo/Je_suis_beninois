@@ -789,20 +789,8 @@ document
                     |--------------------------------------------------------------------------
                     */
 
-                    if (
-                        data.user &&
-                        data.user.role === 'admin'
-                    ) {
-
-                        window.location.href =
-                            '/dashboard';
-
-                    } else {
-
-                        window.location.href =
-                            '/';
-
-                    }
+                                       /* REDIRECTION : décidée par le serveur selon le rôle */
+                    window.location.href = data.redirect || '/';
 
                 }
 
