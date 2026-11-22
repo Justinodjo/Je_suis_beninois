@@ -458,6 +458,13 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
             },
             body: JSON.stringify({ name, email, password, password_confirmation })
         });
+
+        if (res.status === 429) {
+            const wait = res.headers.get('Retry-After') || 60;
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = `Trop de tentatives. Réessayez dans ${wait} secondes.`;
+            return;
+        }
         const data = await res.json();
 
         if (!res.ok) {
