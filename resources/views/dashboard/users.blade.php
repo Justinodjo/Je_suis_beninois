@@ -285,14 +285,13 @@ async function loadUsers(page = 1) {
 // ── Stats cards : échantillon global non filtré, indépendant de la table ──
 async function loadStats() {
     try {
-        const r = await apiFetch('/api/v1/users?per_page=200', { headers: { Accept: 'application/json' } });
-        const d = await r.json();
-        const users = d.data || [];
-        document.getElementById('statTotal').textContent    = d.total ?? users.length;
-        document.getElementById('statActifs').textContent   = users.filter(u => u.statut === 'actif').length + ' actifs';
-        document.getElementById('statAdmins').textContent   = users.filter(u => u.role === 'admin').length;
-        document.getElementById('statContribs').textContent = users.filter(u => u.role === 'contributeur').length;
-        document.getElementById('statBannis').textContent   = users.filter(u => ['inactif','banni'].includes(u.statut)).length;
+        const r = await apiFetch('/api/v1/users/stats');
+        const s = await r.json();
+        document.getElementById('statTotal').textContent    = s.total;
+        document.getElementById('statActifs').textContent   = s.actifs + ' actifs';
+        document.getElementById('statAdmins').textContent   = s.admins;
+        document.getElementById('statContribs').textContent = s.contributeurs;
+        document.getElementById('statBannis').textContent   = s.suspendus;
     } catch { /* silencieux : les cartes restent à — */ }
 }
 
