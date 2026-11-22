@@ -461,11 +461,17 @@ function resetForm() {
     document.getElementById('slug-preview').textContent = '';
     switchTab('info');
 }
-document.addEventListener('DOMContentLoaded', () => {
+function initModalFilters() {
     loadModalFilters().catch(() => {
         const msg = '<div style="color:var(--text-d);font-size:.78rem;">Impossible de charger la liste — rechargez la page.</div>';
         document.getElementById('catCheckboxes').innerHTML = msg;
         document.getElementById('tagCheckboxes').innerHTML = msg;
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initModalFilters);
+} else {
+    initModalFilters(); // script évalué après le chargement
+}
 </script>
