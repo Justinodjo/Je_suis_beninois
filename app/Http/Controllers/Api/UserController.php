@@ -40,6 +40,17 @@ class UserController extends Controller
     }
 
 
+    public function stats()
+    {
+        return response()->json([
+            'total'         => User::count(),
+            'actifs'        => User::where('statut', 'actif')->count(),
+            'admins'        => User::where('role', 'admin')->count(),
+            'contributeurs' => User::where('role', 'contributeur')->count(),
+            'suspendus'     => User::whereIn('statut', ['inactif', 'banni'])->count(),
+        ]);
+    }
+    
     public function show(User $user)
     {
         return response()->json(
