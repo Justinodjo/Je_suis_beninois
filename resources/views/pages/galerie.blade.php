@@ -393,8 +393,11 @@ function openLightbox(type, src) {
     if (type === 'video') {
         content.innerHTML = `<video src="${src}" controls autoplay playsinline></video>`;
     } else if (type === 'embed') {
-        content.innerHTML = `<iframe src="${src}" allow="autoplay; fullscreen" allowfullscreen
-            style="width:90vw;height:50.6vw;max-width:960px;max-height:540px;border:0;border-radius:8px"></iframe>`;
+    content.innerHTML = `<iframe src="${src}"
+        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+        style="width:90vw;height:50.6vw;max-width:960px;max-height:540px;border:0;border-radius:8px"></iframe>`;
     } else {
         content.innerHTML = `<img src="${src}" alt="">`;
     }
