@@ -123,6 +123,16 @@
                 Statistiques
             </a>
 
+              <a
+                href="{{ route('dashboard.users') }}"
+                class="sidebar-link {{ request()->routeIs('dashboard.users') ? 'active' : '' }}"
+            >
+                <span class="s-icon">
+                    <i class="fa-solid fa-users"></i>
+                </span>
+
+                Utilisateurs
+            </a>
         </nav>
 
     </div>
