@@ -1,22 +1,28 @@
 {{-- ═══════════════════════════════════════════════════════
      GALERIE
      Route: GET /galerie → MediaController@index
-     Variables: $medias (paginé)
+     Variables: $videos (collection), $images (paginé)
 ═══════════════════════════════════════════════════════ --}}
 @extends('layouts.app')
 
 @section('title', 'Galerie — Je Suis Béninois')
 
 @php
-    // Split de la page courante par type — évite une requête supplémentaire
-    $videos = $medias->getCollection()->where('type', 'video')->values();
-    $images = $medias->getCollection()->where('type', 'image')->values();
-
-    $videosJson = $videos->map(fn($v) => [
-        'url'   => $v->url,
-        'thumb' => $v->url_thumbnail ?? $v->url,
-        'titre' => $v->titre ?? $v->nom ?? 'Vidéo',
-    ]);
+    $videosJson = $videos->map(function ($v) {
+        $embed = null;
+        if (preg_match('#(?:youtube\.com/(?:watch\?v=|embed/)|youtu\.be/)([A-Za-z0-9_-]{11})#', $v->url, $m)) {
+            $embed = "https://www.youtube.com/embed/{$m[1]}?autoplay=1";
+        } elseif (preg_match('#vimeo\.com/(\d+)#', $v->url, $m)) {
+            $embed = "https://player.vimeo.com/video/{$m[1]}?autoplay=1";
+        }
+        return [
+            'url'   => $v->url,
+            'embed' => $embed,
+            'thumb' => $v->url_thumbnail,
+            'titre' => $v->titre ?? $v->nom ?? 'Vidéo',
+        ];
+    })->values();
+    $totalMedias = $videos->count() + $images->total();
 @endphp
 
 @push('styles')
@@ -127,6 +133,7 @@
     padding-bottom: 6px;
 }
 .video-slider-thumb {
+    background: #111;
     flex: 0 0 auto;
     width: 140px; aspect-ratio: 16/9;
     border-radius: 8px;
@@ -226,7 +233,7 @@
 <section class="galerie-hero">
     <div class="container">
         <h1>Galerie</h1>
-        <p>{{ $medias->total() }} média{{ $medias->total() !== 1 ? 's' : '' }} — photos et vidéos de la culture béninoise</p>
+        <p>{{ $totalMedias }} média{{ $totalMedias !== 1 ? 's' : '' }} — photos et vidéos de la culture béninoise</p>
     </div>
 </section>
 
@@ -250,7 +257,9 @@
                 <button class="video-slider-arrow prev" onclick="event.stopPropagation(); prevVideo()">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
-                <img id="videoMainImg" src="{{ $videos->first()->url_thumbnail ?? $videos->first()->url }}" alt="">
+                <img id="videoMainImg"
+                     @if($videos->first()->url_thumbnail) src="{{ $videos->first()->url_thumbnail }}" @else style="display:none" @endif
+                     alt="">
                 <div class="video-slider-playbtn"><i class="fa-solid fa-play"></i></div>
                 <button class="video-slider-arrow next" onclick="event.stopPropagation(); nextVideo()">
                     <i class="fa-solid fa-chevron-right"></i>
@@ -264,7 +273,9 @@
             <div class="video-slider-thumbs" id="videoThumbs">
                 @foreach($videos as $i => $video)
                 <div class="video-slider-thumb {{ $i === 0 ? 'active' : '' }}" onclick="goToVideo({{ $i }})">
-                    <img src="{{ $video->url_thumbnail ?? $video->url }}" alt="">
+                    @if($video->url_thumbnail)
+                        <img src="{{ $video->url_thumbnail }}" alt="">
+                    @endif
                     <i class="fa-solid fa-circle-play"></i>
                 </div>
                 @endforeach
@@ -282,7 +293,7 @@
     <div id="photos-section">
         <div class="galerie-section-title">
             <h2>Photos</h2>
-            <span>{{ $images->count() }} photo{{ $images->count() !== 1 ? 's' : '' }}</span>
+            <span>{{ $images->total() }} photo{{ $images->total() !== 1 ? 's' : '' }}</span>
         </div>
 
         @if($images->isNotEmpty())
@@ -312,7 +323,7 @@
     </div>
 
     <div style="margin:40px 0 48px;">
-        {{ $medias->links() }}
+        {{ $images->links() }}
     </div>
 
 </div>
@@ -327,14 +338,19 @@
 @push('scripts')
 <script>
 // ═══ SLIDER VIDÉOS ═══
-const videoSliderEl = document.getElementById('videoSlider');
-const videos   = videoSliderEl ? JSON.parse(videoSliderEl.dataset.videos) : [];
-let currentVideoIndex = 0;
+// "var" (et non const/let) : Turbo rejoue ce script à chaque visite
+var videoSliderEl = document.getElementById('videoSlider');
+var videos = videoSliderEl ? JSON.parse(videoSliderEl.dataset.videos) : [];
+var currentVideoIndex = 0;
 
 function renderVideoSlide() {
     if (!videos.length) return;
     const v = videos[currentVideoIndex];
-    document.getElementById('videoMainImg').src   = v.thumb;
+
+    const img = document.getElementById('videoMainImg');
+    img.style.display = v.thumb ? '' : 'none';
+    if (v.thumb) img.src = v.thumb;
+
     document.getElementById('videoMainTitle').textContent = v.titre;
     document.getElementById('videoMainCount').textContent = `${currentVideoIndex + 1} / ${videos.length}`;
 
@@ -347,10 +363,12 @@ function renderVideoSlide() {
 }
 
 function nextVideo() {
+    if (!videos.length) return;
     currentVideoIndex = (currentVideoIndex + 1) % videos.length;
     renderVideoSlide();
 }
 function prevVideo() {
+    if (!videos.length) return;
     currentVideoIndex = (currentVideoIndex - 1 + videos.length) % videos.length;
     renderVideoSlide();
 }
@@ -360,32 +378,46 @@ function goToVideo(i) {
 }
 function playCurrentVideo() {
     if (!videos.length) return;
-    openLightbox('video', videos[currentVideoIndex].url);
+    const v = videos[currentVideoIndex];
+    openLightbox(v.embed ? 'embed' : 'video', v.embed || v.url);
 }
 
 // ═══ BANDE PHOTOS ═══
 function scrollPhotos(direction) {
-    const strip = document.getElementById('photoStrip');
-    strip.scrollBy({ left: direction * 320, behavior: 'smooth' });
+    document.getElementById('photoStrip')?.scrollBy({ left: direction * 320, behavior: 'smooth' });
 }
 
 // ═══ LIGHTBOX PARTAGÉE ═══
 function openLightbox(type, src) {
     const content = document.getElementById('galerieLightboxContent');
-    content.innerHTML = type === 'video'
-        ? `<video src="${src}" controls autoplay></video>`
-        : `<img src="${src}" alt="">`;
+    if (type === 'video') {
+        content.innerHTML = `<video src="${src}" controls autoplay playsinline></video>`;
+    } else if (type === 'embed') {
+        content.innerHTML = `<iframe src="${src}" allow="autoplay; fullscreen" allowfullscreen
+            style="width:90vw;height:50.6vw;max-width:960px;max-height:540px;border:0;border-radius:8px"></iframe>`;
+    } else {
+        content.innerHTML = `<img src="${src}" alt="">`;
+    }
     document.getElementById('galerieLightbox').classList.add('open');
 }
 function closeLightbox() {
-    document.getElementById('galerieLightbox').classList.remove('open');
+    const box = document.getElementById('galerieLightbox');
+    if (!box) return;
+    box.classList.remove('open');
     document.getElementById('galerieLightboxContent').innerHTML = '';
 }
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeLightbox();
-    if (document.getElementById('galerieLightbox').classList.contains('open')) return;
-    if (e.key === 'ArrowRight') nextVideo();
-    if (e.key === 'ArrowLeft')  prevVideo();
-});
+
+// Écouteur global : enregistré une seule fois, actif seulement sur la page galerie
+if (!window.__galerieKeysBound) {
+    window.__galerieKeysBound = true;
+    document.addEventListener('keydown', function (e) {
+        const box = document.getElementById('galerieLightbox');
+        if (!box) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (box.classList.contains('open')) return;
+        if (e.key === 'ArrowRight') nextVideo();
+        if (e.key === 'ArrowLeft')  prevVideo();
+    });
+}
 </script>
 @endpush
