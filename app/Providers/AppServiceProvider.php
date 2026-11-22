@@ -34,5 +34,14 @@ class AppServiceProvider extends ServiceProvider
                     ->keyBy('nom')
             );
         });
+
+            // 5 tentatives/minute par couple email + IP (un autre compte n'est pas bloqué)
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(5)->by(Str::lower((string) $request->input('email')) . '|' . $request->ip());
+        });
+    
+        RateLimiter::for('register', fn (Request $request) => Limit::perMinutes(10, 3)->by($request->ip()));
+        RateLimiter::for('logout',   fn (Request $request) => Limit::perMinute(20)->by($request->ip()));
+        RateLimiter::for('public-api', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
     }
 }
