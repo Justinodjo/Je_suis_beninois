@@ -404,7 +404,7 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
     // État de connexion lu côté serveur (cookie JWT HttpOnly) : le JS n'a jamais accès au token
     const isLoggedIn = @json(auth('api')->check());
 
@@ -421,6 +421,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const authHeaders = { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
 
+    function applyLikeState(liked, nbLikes) {
+        document.getElementById('likeCount').textContent = nbLikes;
+        likeBtn.style.background = liked ? 'var(--jaune)' : 'transparent';
+        likeBtn.style.color = liked ? '#1a1a1a' : '#fff';
+        likeBtn.querySelector('i').className = liked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    }
+
     // Vérifie la validité du token puis affiche les contrôles + état du like
     fetch('/api/v1/me', { headers: authHeaders })
         .then(res => {
@@ -434,17 +441,9 @@ document.addEventListener('DOMContentLoaded', () => {
             applyLikeState(data.liked, data.nb_likes);
         })
         .catch(() => {
-
             if (loginToLike)  loginToLike.style.display  = 'inline-block';
             if (loginComment) loginComment.style.display = 'block';
         });
-
-    function applyLikeState(liked, nbLikes) {
-        document.getElementById('likeCount').textContent = nbLikes;
-        likeBtn.style.background = liked ? 'var(--jaune)' : 'transparent';
-        likeBtn.style.color = liked ? '#1a1a1a' : '#fff';
-        likeBtn.querySelector('i').className = liked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
-    }
 
     likeBtn?.addEventListener('click', async () => {
         const id = likeBtn.dataset.articleId;
@@ -474,6 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback.style.color = 'var(--rouge)';
         }
     });
-});
+})();
 </script>
 @endpush
