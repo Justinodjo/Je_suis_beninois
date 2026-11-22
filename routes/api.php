@@ -22,7 +22,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [CookieAuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('/register', [UserController::class, 'store'])->middleware('throttle:3,10');
 
-    Route::post('/logout', [CookieAuthController::class, 'logout'])->middleware('auth:api');
+   
+    Route::post('/logout', [CookieAuthController::class, 'logout'])->middleware('throttle:20,1');
     Route::post('/refresh', [CookieAuthController::class, 'refresh']);
     // publique : doit aussi effacer le cookie quand le JWT est déjà expiré
  Route::middleware(['auth.optional', 'throttle:60,1'])->group(function () {
