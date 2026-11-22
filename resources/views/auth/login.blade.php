@@ -750,6 +750,12 @@ document
                     );
 
 
+                    if (response.status === 429) {
+                        const wait = response.headers.get('Retry-After') || 60;
+                        errorDiv.style.display = 'block';
+                        errorDiv.textContent = `Trop de tentatives. Réessayez dans ${wait} secondes.`;
+                        return;
+                    }
                 const data =
                     await response.json();
 
@@ -804,12 +810,7 @@ document
 
                     errorDiv.style.display =
                         'block';
-                    if (response.status === 429) {
-                        const wait = response.headers.get('Retry-After') || 60;
-                        errorDiv.style.display = 'block';
-                        errorDiv.textContent = `Trop de tentatives. Réessayez dans ${wait} secondes.`;
-                        return;
-                    }
+                
                     
                     errorDiv.textContent =
                         data.message ||
