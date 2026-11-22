@@ -800,7 +800,7 @@ function openMediaDetail(m) {
         }
     } else {
         preview.innerHTML = `<img src="${esc(m.url)}"
-            alt="${esc(m.nom||'')}"`
+            alt="${esc(m.nom||'')}"
             style="width:100%;height:100%;object-fit:contain;"
             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;\\'>
                 <i class=\\'fa-solid fa-image-slash\\' style=\\'font-size:2rem;color:rgba(255,255,255,.15);\\'></i></div>')">`;
