@@ -10,14 +10,12 @@ class MediaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Media::latest();
+        // Les vidéos sont chargées à part : elles ne dépendent plus de la page de photos
+        $videos = Media::where('type', 'video')->latest()->take(30)->get();
 
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
+        // Les photos restent paginées
+        $images = Media::where('type', 'image')->latest()->paginate(24)->withQueryString();
 
-        $medias = $query->paginate(24)->withQueryString();
-
-        return view('pages.galerie', compact('medias'));
+        return view('pages.galerie', compact('videos', 'images'));
     }
 }
