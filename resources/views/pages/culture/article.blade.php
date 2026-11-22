@@ -260,19 +260,33 @@
                        class="article-share-btn" style="background:#25D366;"><i class="fa-brands fa-whatsapp"></i></a>
                 </div>
 
-                {{-- ── VIDÉOS de l'article (lecture inline) ── --}}
+               {{-- ── VIDÉOS de l'article (lecture inline) ── --}}
                 @php $videos = $article->medias->where('type', 'video'); @endphp
                 @if($videos->count() > 0)
                 <div class="article-videos">
                     <h3 style="font-family:var(--font-h);font-size:1.15rem;font-weight:700;">Vidéos</h3>
                     @foreach($videos as $video)
-                    <div class="article-video-embed">
-                        @if(Str::contains($video->url, ['youtube.com','youtu.be']))
-                            <iframe src="{{ str_replace('watch?v=', 'embed/', $video->url) }}" allowfullscreen></iframe>
-                        @else
-                            <video src="{{ $video->url }}" controls preload="metadata"></video>
-                        @endif
-                    </div>
+                        @php
+                            $u = $video->url;
+                            $embed = null;
+                            if (preg_match('#(?:youtube\.com/(?:watch\?v=|embed/)|youtu\.be/)([A-Za-z0-9_-]{11})#', $u, $m)) {
+                                $embed = 'https://www.youtube.com/embed/' . $m[1];
+                            } elseif (preg_match('#vimeo\.com/(\d+)#', $u, $m)) {
+                                $embed = 'https://player.vimeo.com/video/' . $m[1];
+                            }
+                        @endphp
+                        <div class="article-video-embed">
+                            @if($embed)
+                                <iframe src="{{ $embed }}"
+                                        title="{{ $video->titre ?? $video->nom ?? 'Vidéo' }}"
+                                        loading="lazy"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen></iframe>
+                            @else
+                                <video src="{{ $u }}" controls preload="metadata" playsinline></video>
+                            @endif
+                        </div>
                     @endforeach
                 </div>
                 @endif
