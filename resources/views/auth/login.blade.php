@@ -6,7 +6,7 @@
 
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Connexion - Je Suis Béninois</title>
 
     <link
@@ -734,7 +734,8 @@ document
                             'application/json',
 
                         'X-Requested-With':
-                            'XMLHttpRequest'
+                            'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
 
                     },
 
