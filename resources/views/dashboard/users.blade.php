@@ -250,7 +250,6 @@
 
 @push('scripts')
 <script>
-// ⚠️ À AJUSTER une fois routes/api.php confirmé :
 // doit pointer vers adminStore(), pas vers store() (inscription publique, role forcé à 'visiteur')
 const ADMIN_CREATE_URL = '/api/v1/users';
 
@@ -399,11 +398,17 @@ async function applyQuickRole() {
     const role   = document.getElementById('quickRoleValue').value;
     const statut = document.getElementById('quickStatutValue').value;
 
-    const r = await apiFetch(`/api/v1/users/${id}`, {
-        method: 'PUT',
-        body:   JSON.stringify({ role, statut })
-    });
-    const d = await r.json();
+    let r, d = {};
+    try {
+        r = await apiFetch(`/api/v1/users/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ role, statut })
+        });
+        d = await r.json();
+    } catch {
+        showToast('Erreur réseau', 'error');
+        return;
+    }
 
     if (r.ok) {
         showToast(`Rôle mis à jour → ${role} ✓`);
@@ -546,7 +551,7 @@ async function saveUser() {
 
 function showErr(el, msg) {
     el.style.display = 'block';
-    el.innerHTML = '<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>' + msg;
+    el.textContent = msg;
 }
 
 function closeUserModal() {
