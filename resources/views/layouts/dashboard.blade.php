@@ -536,28 +536,18 @@ async function checkAuthentication() {
 */
 
 async function logout() {
-
-  
-
-
     try {
-
         await fetch(API_BASE_URL + '/logout', {
             method: 'POST',
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             credentials: 'same-origin'
         });
-
     } catch (error) {
-
         console.error('Erreur déconnexion:', error);
-
     } finally {
-
         localStorage.removeItem('auth_token'); // nettoyage de l'ancien stockage
-
+        window.location.href = '/login';       // ou '/' pour l'accueil
     }
-
 }
 
 
