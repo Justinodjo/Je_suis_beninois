@@ -47,6 +47,9 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body { font-family: var(--font-body); color: var(--text); background: var(--blanc); line-height: 1.6; }
+
+html, body { overflow-x: clip; }
+.editorial-hero-grid > * { min-width: 0; }
     img { max-width: 100%; height: auto; display: block; object-fit: cover; }
     a { text-decoration: none; color: inherit; }
     .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
