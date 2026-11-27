@@ -293,7 +293,13 @@ select.f-control { cursor:pointer; }
 /* ═══ SIDEBAR OVERLAY MOBILE ═══ */
 .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:90; }
 .sidebar-overlay.show { display:block; }
+.two-col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.two-col-grid > * { min-width: 0; }
+.table-wrap { overflow-x: auto; }
 
+@media (max-width: 900px) {
+    .two-col-grid { grid-template-columns: 1fr; }
+}
 /* ═══ RESPONSIVE ═══ */
 @media (max-width:1100px) { .stats-grid { grid-template-columns:repeat(2,1fr); } }
 @media (max-width:900px) {
