@@ -30,7 +30,7 @@
                 <a href="{{ route('interviews.index') }}" class="{{ request()->routeIs('interviews.*') ? 'active' : '' }}">Interviews</a>
                 <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
                 
-            @@if($headerUser && $headerUser->statut === 'actif')
+            @if($headerUser && $headerUser->statut === 'actif')
     <div class="nav-mobile-auth">
         <span class="nav-mobile-user"><i class="fa-regular fa-user"></i> {{ $headerUser->name }}</span>
         @if($headerUser->role === 'admin')
