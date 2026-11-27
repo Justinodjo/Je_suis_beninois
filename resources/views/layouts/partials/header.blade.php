@@ -30,12 +30,26 @@
                 <a href="{{ route('interviews.index') }}" class="{{ request()->routeIs('interviews.*') ? 'active' : '' }}">Interviews</a>
                 <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
                 
-            @if(!($headerUser && $headerUser->statut === 'actif'))
-                <div class="nav-mobile-auth">
-                    <a href="{{ route('login') }}" class="btn btn-login">Se connecter</a>
-                    <a href="{{ route('register') }}" class="btn btn-secondary">S'inscrire</a>
-                </div>
-            @endif
+            @@if($headerUser && $headerUser->statut === 'actif')
+    <div class="nav-mobile-auth">
+        <span class="nav-mobile-user"><i class="fa-regular fa-user"></i> {{ $headerUser->name }}</span>
+        @if($headerUser->role === 'admin')
+            <a href="{{ route('dashboard.index') }}" class="btn btn-login">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard
+            </a>
+        @elseif($headerUser->role === 'contributeur')
+            <a href="{{ route('contribution.index') }}" class="btn btn-login">
+                <i class="fa-solid fa-pen-to-square"></i> Mon espace
+            </a>
+        @endif
+        <button type="button" class="btn btn-secondary" data-logout>Déconnexion</button>
+    </div>
+@else
+    <div class="nav-mobile-auth">
+        <a href="{{ route('login') }}" class="btn btn-login">Se connecter</a>
+        <a href="{{ route('register') }}" class="btn btn-secondary">S'inscrire</a>
+    </div>
+@endif
 
                 
             </nav>
