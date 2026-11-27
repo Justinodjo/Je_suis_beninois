@@ -65,17 +65,22 @@
 
                 {{-- Visiteur (affiché par défaut) --}}
                 @if($headerUser && $headerUser->statut === 'actif')
-                    <span id="header-user" style="display:flex;align-items:center;gap:10px;">
-                        @if($headerUser->role === 'admin')
-                            <a href="{{ route('dashboard.index') }}" class="btn btn-primary"
-                               style="font-size:.82rem;padding:8px 18px;">
-                                <i class="fa-solid fa-gauge-high"></i> Dashboard
-                            </a>
-                        @endif
-                        <span style="font-weight:600;">{{ $headerUser->name }}</span>
-                        <button type="button" id="header-logout" class="btn btn-secondary"
-                                style="font-size:.82rem;padding:8px 18px;">Déconnexion</button>
-                    </span>
+                    <span id="header-user" class="header-user-desktop">
+    @if($headerUser->role === 'admin')
+        <a href="{{ route('dashboard.index') }}" class="btn btn-primary"
+           style="font-size:.82rem;padding:8px 18px;">
+            <i class="fa-solid fa-gauge-high"></i> Dashboard
+        </a>
+    @elseif($headerUser->role === 'contributeur')
+        <a href="{{ route('contribution.index') }}" class="btn btn-primary"
+           style="font-size:.82rem;padding:8px 18px;">
+            <i class="fa-solid fa-pen-to-square"></i> Mon espace
+        </a>
+    @endif
+    <span style="font-weight:600;">{{ $headerUser->name }}</span>
+    <button type="button" id="header-logout" data-logout class="btn btn-secondary"
+            style="font-size:.82rem;padding:8px 18px;">Déconnexion</button>
+</span>
                     <script src="{{ asset('js/header-auth.js') }}"></script>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-login">Se connecter</a>
