@@ -1,18 +1,20 @@
 /**
- * Header : l'état de connexion est rendu côté serveur (cookie JWT HttpOnly).
- * Ce script ne gère plus que le bouton « Déconnexion ».
+ * Header : état de connexion rendu côté serveur (cookie JWT HttpOnly).
+ * Gère les boutons « Déconnexion » (barre du haut et menu mobile).
  */
 (function () {
-    const btn = document.getElementById('header-logout');
-    if (!btn) return;
+    if (window.__headerLogoutBound) return;   // un seul écouteur, même avec Turbo
+    window.__headerLogoutBound = true;
 
-    btn.addEventListener('click', () => {
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('[data-logout]')) return;
+
         fetch('/api/v1/logout', {
             method: 'POST',
             headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             credentials: 'same-origin',
         }).finally(() => {
-            localStorage.removeItem('auth_token'); // nettoyage de l'ancien stockage
+            localStorage.removeItem('auth_token');
             window.location.href = '/';
         });
     });
