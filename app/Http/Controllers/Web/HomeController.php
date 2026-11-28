@@ -56,6 +56,15 @@ class HomeController extends Controller
                 ->get();
         }
 
+// Onglet « Tout » : les 3 derniers articles publiés, toutes catégories confondues
+$latestArticles = Article::with(['medias', 'categories', 'user'])
+    ->where('statut', 'publié')
+    ->latest()
+    ->limit(3)
+    ->get();
+
+$totalArticles = Article::where('statut', 'publié')->count();
+
         return view('pages.accueil', compact('featuredArticles', 'categories', 'articlesByCategory'));
     }
 
