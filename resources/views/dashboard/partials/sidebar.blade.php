@@ -18,6 +18,12 @@
         <i class="fas fa-photo-video s-icon"></i> Médias
     </a>
 
+<a href="{{ route('dashboard.publicites') }}"
+   class="sidebar-link {{ request()->routeIs('dashboard.publicites') ? 'active' : '' }}">
+    <span class="s-icon"><i class="fa-solid fa-rectangle-ad"></i></span>
+    Publicités
+</a>
+
     <a href="{{ route('dashboard.stats') }}" class="sidebar-link {{ request()->routeIs('dashboard.stats') ? 'active' : '' }}">
         <i class="fas fa-chart-line s-icon"></i> Statistiques
     </a>
