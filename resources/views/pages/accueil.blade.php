@@ -504,7 +504,9 @@
         @endforeach
     </div>
 </section>
-
+<div class="container" style="padding-bottom:40px;">
+    @include('layouts.partials.ad-slot', ['emplacement' => 'banniere_contenu'])
+</div>
 @endsection
 
 @push('scripts')
