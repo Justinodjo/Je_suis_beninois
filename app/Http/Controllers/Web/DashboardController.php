@@ -32,6 +32,11 @@ class DashboardController extends Controller
         return view('dashboard.stats');
     }
 
+    public function publicites()
+    {
+      return view('dashboard.publicites');
+    }
+
     /**
         * Page Utilisateurs : accès contrôlé par les middlewares de la route (auth:api + role:admin),
         * le JWT étant lu depuis le cookie HttpOnly (JwtFromCookie).
