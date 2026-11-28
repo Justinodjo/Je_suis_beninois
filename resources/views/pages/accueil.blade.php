@@ -410,6 +410,10 @@
                 Pas d'autres articles à la une pour le moment.
             </div>
             @endforelse
+<div style="padding:8px 20px 20px;">
+    @include('layouts.partials.ad-slot', ['emplacement' => 'laterale'])
+</div>
+
         </div>
 
     </div>
@@ -417,6 +421,10 @@
 
 {{-- ════ MOTIF WAX — SÉPARATEUR SIGNATURE ════ --}}
 <div class="pattern-strip"></div>
+
+<div class="container">
+    @include('layouts.partials.ad-slot', ['emplacement' => 'banniere_principale'])
+</div>
 
 {{-- ════ SECTIONS PAR CATÉGORIE ════ --}}
 <section class="categories-section">
