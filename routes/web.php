@@ -11,6 +11,9 @@ use App\Http\Controllers\Web\MediaController;
 use App\Http\Controllers\Web\ContactController;
 use App\Http\Controllers\Web\ContributionController;
 
+
+use App\Http\Controllers\Web\PubliciteClicController;
+
 /*
 |--------------------------------------------------------------------------
 | Routes Web - Je Suis Béninois
@@ -82,7 +85,9 @@ Route::prefix('interviews')
             ->name('show');
     });
 
-
+Route::get('/pub/{publicite}/clic', [PubliciteClicController::class, 'clic'])
+    ->middleware('throttle:pub-clic')
+    ->name('publicite.clic');
 /*
 |--------------------------------------------------------------------------
 | Login
@@ -143,3 +148,6 @@ Route::prefix('dashboard')
 Route::get('/contribution', [ContributionController::class, 'index'])
     ->middleware(['auth:api', 'role:contributeur'])
     ->name('contribution.index');
+
+Route::get('/publicites', [DashboardController::class, 'publicites'])
+    ->name('publicites');
