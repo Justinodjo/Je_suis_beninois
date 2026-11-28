@@ -32,10 +32,7 @@ class DashboardController extends Controller
         return view('dashboard.stats');
     }
 
-    public function publicites()
-    {
-      return view('dashboard.publicites');
-    }
+    
 
     /**
         * Page Utilisateurs : accès contrôlé par les middlewares de la route (auth:api + role:admin),
@@ -47,4 +44,10 @@ class DashboardController extends Controller
 
         return view('dashboard.users');
     }
+
+public function publicites()
+    {
+      return view('dashboard.publicites');
+    }
+
 }
