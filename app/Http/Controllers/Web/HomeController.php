@@ -65,7 +65,9 @@ $latestArticles = Article::with(['medias', 'categories', 'user'])
 
 $totalArticles = Article::where('statut', 'publié')->count();
 
-        return view('pages.accueil', compact('featuredArticles', 'categories', 'articlesByCategory'));
+        return view('pages.accueil', compact(
+    'featuredArticles', 'categories', 'articlesByCategory', 'latestArticles', 'totalArticles'
+));
     }
 
 
