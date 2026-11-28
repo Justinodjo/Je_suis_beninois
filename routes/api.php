@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\MediaController;
 
+use App\Http\Controllers\Api\PubliciteController;
+
 Route::prefix('v1')->group(function () {
 
     /*
@@ -72,6 +74,12 @@ Route::prefix('v1')->group(function () {
         |----------------------------------------------------------------
         */
         Route::middleware('role:admin')->group(function () {
+
+
+Route::get('/publicites', [PubliciteController::class, 'index']);
+Route::post('/publicites', [PubliciteController::class, 'store']);
+Route::post('/publicites/{publicite}', [PubliciteController::class, 'update']); // multipart : POST
+Route::delete('/publicites/{publicite}', [PubliciteController::class, 'destroy']);
             // ✅ users : la faille de tout à l'heure est ici bouchée
             Route::get('/users/stats', [UserController::class, 'stats']);
             Route::apiResource('users', UserController::class)->except(['store']);
