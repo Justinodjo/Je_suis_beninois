@@ -144,10 +144,9 @@ Route::prefix('dashboard')
         Route::get('/users', [DashboardController::class, 'users'])
             ->name('users');
     });
+Route::get('/publicites', [DashboardController::class, 'publicites'])
+    ->name('publicites');
 
 Route::get('/contribution', [ContributionController::class, 'index'])
     ->middleware(['auth:api', 'role:contributeur'])
     ->name('contribution.index');
-
-Route::get('/publicites', [DashboardController::class, 'publicites'])
-    ->name('publicites');
